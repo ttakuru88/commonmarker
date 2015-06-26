@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>RDoc Documentation</title>
+
+<link href="./fonts.css" rel="stylesheet">
+<link href="./rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/navigation.js"></script>
+<script src="./js/search_index.js"></script>
+<script src="./js/search.js"></script>
+<script src="./js/searcher.js"></script>
+<script src="./js/darkfish.js"></script>
+
+
+<body id="top" role="document" class="file">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  <div id="project-metadata">
+    <div id="fileindex-section" class="nav-section">
+  <h3>Pages</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./README_md.html">README</a>
+  
+  </ul>
+</div>
+
+    <div id="classindex-section" class="nav-section">
+  <h3>Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./CommonMarker/Config.html">CommonMarker::Config</a>
+  
+    <li><a href="./CommonMarker/HtmlRenderer.html">CommonMarker::HtmlRenderer</a>
+  
+    <li><a href="./CommonMarker/Node.html">CommonMarker::Node</a>
+  
+    <li><a href="./CommonMarker/NodeError.html">CommonMarker::NodeError</a>
+  
+    <li><a href="./CommonMarker/Renderer.html">CommonMarker::Renderer</a>
+  
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main">
+
+
+<h1 id="label-CommonMarker">CommonMarker<span><a href="#label-CommonMarker">&para;</a> <a href="#documentation">&uarr;</a></span></h1>
+
+<p><a href="https://travis-ci.org/gjtorikian/commonmarker"><img
+src="https://travis-ci.org/gjtorikian/commonmarker.svg"></a> <a
+href="http://badge.fury.io/rb/commonmarker"><img
+src="https://badge.fury.io/rb/commonmarker.svg"></a></p>
+
+<p>Ruby wrapper for <a href="https://github.com/jgm/CommonMark">libcmark</a>,
+the reference parser for CommonMark. It passes all of the C tests, and is
+therefore spec-complete.</p>
+
+<h2 id="label-Installation">Installation<span><a href="#label-Installation">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+
+<p>Add this line to your application&#39;s Gemfile:</p>
+
+<pre>gem &#39;commonmarker&#39;</pre>
+
+<p>And then execute:</p>
+
+<pre>$ bundle</pre>
+
+<p>Or install it yourself as:</p>
+
+<pre>$ gem install commonmarker</pre>
+
+<h2 id="label-Usage">Usage<span><a href="#label-Usage">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+
+<h3 id="label-Converting+to+HTML">Converting to HTML<span><a href="#label-Converting+to+HTML">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+
+<p>Call <code>render_html</code> on a string to convert it to HTML:</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
+<span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&#39;Hi *there*&#39;</span>, :<span class="ruby-identifier">default</span>)
+<span class="ruby-comment"># &lt;p&gt;Hi &lt;em&gt;there&lt;/em&gt;&lt;/p&gt;\n</span>
+</pre>
+
+<p>The second argument is optional–<a href="#options">see below</a> for more
+information.</p>
+
+<h3 id="label-Generating+a+document">Generating a document<span><a href="#label-Generating+a+document">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+
+<p>You can also parse a string to receive a <code>Document</code> node. You
+can than print that node to HTML, iterate over the children, and other fun
+node stuff. For example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
+
+<span class="ruby-identifier">doc</span> = <span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-string">&#39;*Hello* world&#39;</span>, :<span class="ruby-identifier">default</span>)
+<span class="ruby-identifier">puts</span>(<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">to_html</span>) <span class="ruby-comment"># &lt;p&gt;Hi &lt;em&gt;there&lt;/em&gt;&lt;/p&gt;\n</span>
+
+<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
+  <span class="ruby-identifier">puts</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span> <span class="ruby-comment"># [:document, :paragraph, :text, :emph, :text]</span>
+<span class="ruby-keyword">end</span>
+</pre>
+
+<p>The second argument is optional–<a href="#options">see below</a> for more
+information.</p>
+
+<h4 id="label-Example%3A+walking+the+AST">Example: walking the AST<span><a href="#label-Example%3A+walking+the+AST">&para;</a> <a href="#documentation">&uarr;</a></span></h4>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
+
+<span class="ruby-comment"># parse the files specified on the command line</span>
+<span class="ruby-identifier">doc</span> = <span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-node">&quot;# The site\n\n [GitHub](https://www.github.com)&quot;</span>)
+
+<span class="ruby-comment"># Walk tree and print out URLs for links</span>
+<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> :<span class="ruby-identifier">link</span>
+    <span class="ruby-identifier">printf</span>(<span class="ruby-string">&quot;URL = %s\n&quot;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">url</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>
+
+<span class="ruby-comment"># Capitalize all regular text in headers</span>
+<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> :<span class="ruby-identifier">header</span>
+    <span class="ruby-identifier">node</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">subnode</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">subnode</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> :<span class="ruby-identifier">text</span>
+        <span class="ruby-identifier">subnode</span>.<span class="ruby-identifier">string_content</span> = <span class="ruby-identifier">subnode</span>.<span class="ruby-identifier">string_content</span>.<span class="ruby-identifier">upcase</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>
+
+<span class="ruby-comment"># Transform links to regular text</span>
+<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> :<span class="ruby-identifier">link</span>
+    <span class="ruby-identifier">node</span>.<span class="ruby-identifier">insert_before</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">first_child</span>)
+    <span class="ruby-identifier">node</span>.<span class="ruby-identifier">delete</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>
+</pre>
+
+<h3 id="label-Creating+a+custom+renderer">Creating a custom renderer<span><a href="#label-Creating+a+custom+renderer">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+
+<p>You can also derive a class from CommonMarker&#39;s
+<code>HtmlRenderer</code> class. This produces slower output, but is far
+more customizable. For example:</p>
+
+<pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">MyHtmlRenderer</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">CommonMarker</span><span class="ruby-operator">::</span><span class="ruby-constant">HtmlRenderer</span>
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">initialize</span>
+    <span class="ruby-keyword">super</span>
+    <span class="ruby-ivar">@headerid</span> = <span class="ruby-value">1</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">header</span>(<span class="ruby-identifier">node</span>)
+    <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
+      <span class="ruby-identifier">out</span>(<span class="ruby-string">&quot;&lt;h&quot;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">header_level</span>, <span class="ruby-string">&quot; id=\&quot;&quot;</span>, <span class="ruby-ivar">@headerid</span>, <span class="ruby-string">&quot;\&quot;&gt;&quot;</span>,
+               :<span class="ruby-identifier">children</span>, <span class="ruby-string">&quot;&lt;/h&quot;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">header_level</span>, <span class="ruby-string">&quot;&gt;&quot;</span>)
+      <span class="ruby-ivar">@headerid</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>
+
+<span class="ruby-comment"># this renderer prints directly to STDOUT, instead</span>
+<span class="ruby-comment"># of returning a string</span>
+<span class="ruby-identifier">myrenderer</span> = <span class="ruby-constant">MyHtmlRenderer</span>.<span class="ruby-identifier">new</span>
+<span class="ruby-identifier">print</span>(<span class="ruby-identifier">myrenderer</span>.<span class="ruby-identifier">render</span>(<span class="ruby-identifier">doc</span>))
+
+<span class="ruby-comment"># Print any warnings to STDERR</span>
+<span class="ruby-identifier">renderer</span>.<span class="ruby-identifier">warnings</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">w</span><span class="ruby-operator">|</span>
+  <span class="ruby-constant">STDERR</span>.<span class="ruby-identifier">write</span>(<span class="ruby-node">&quot;#{w}\n&quot;</span>)
+<span class="ruby-keyword">end</span>
+</pre>
+
+<h2 id="label-Options">Options<span><a href="#label-Options">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+
+<p>CommonMarker accepts the same options that CMark does, as symbols:</p>
+<ul><li>
+<p><code>:default</code> - The default rendering.</p>
+</li><li>
+<p><code>:sourcepos</code> - Include source position in rendered HTML.</p>
+</li><li>
+<p><code>:hardbreaks</code> - Treat <code>\n</code> as hardbreaks (by adding
+<code>&lt;br/&gt;</code>).</p>
+</li><li>
+<p><code>:normalize</code> - Attempt to normalize the HTML.</p>
+</li><li>
+<p><code>:smart</code> - Use smart punctuation (curly quotes, etc.).</p>
+</li></ul>
+
+<p>Pass these in as a single symbol argument:</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
+<span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&quot;\&quot;Hello,\&quot; said the spider.&quot;</span>, :<span class="ruby-identifier">smart</span>)
+<span class="ruby-comment"># &lt;p&gt;“Hello,” said the spider.&lt;/p&gt;\n</span>
+</pre>
+
+<p>To have multiple options applied, pass in an array of options:</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
+<span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&quot;\&quot;Hello,\&quot; said the spider.\n\&quot;&#39;Shelob&#39; is my name.\&quot;&quot;</span>, [:<span class="ruby-identifier">hardbreaks</span>, :<span class="ruby-identifier">smart</span>])
+<span class="ruby-comment"># &lt;p&gt;“Hello,” said the spider.&lt;/br&gt;“‘Shelob’ is my name.”&lt;/p&gt;</span>
+</pre>
+
+<p>For more information on these options, see <a
+href="http://git.io/vLIHE">the CMark documentation</a>.</p>
+
+<h2 id="label-Hacking">Hacking<span><a href="#label-Hacking">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+
+<p>After cloning the repo:</p>
+
+<pre>script/bootstrap
+bundle exec rake compile</pre>
+
+<p>If there were no errors, you&#39;re done! Otherwise, make sure to follow
+the CMark dependency instructions.</p>
+
+<h2 id="label-Benchmarks">Benchmarks<span><a href="#label-Benchmarks">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+
+<p>Some rough benchmarks:</p>
+
+<pre>$ bundle exec rake benchmark
+
+input size = 11063727 bytes
+
+redcarpet
+  0.070000   0.020000   0.090000 (  0.079641)
+github-markdown
+  0.070000   0.010000   0.080000 (  0.083535)
+commonmarker with to_html
+  0.100000   0.010000   0.110000 (  0.111947)
+commonmarker with ruby HtmlRenderer
+  1.830000   0.030000   1.860000 (  1.866203)
+kramdown
+  4.610000   0.070000   4.680000 (  4.678398)</pre>
+</main>
+
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="http://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="http://rdoc.rubyforge.org">RDoc</a> 4.1.2.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
