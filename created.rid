@@ -1,7 +1,7 @@
-Fri, 26 Jun 2015 14:30:01 -0700
-lib/commonmarker.rb	Fri, 26 Jun 2015 14:29:46 -0700
-lib/commonmarker/config.rb	Fri, 26 Jun 2015 14:29:46 -0700
-lib/commonmarker/renderer.rb	Fri, 26 Jun 2015 14:29:46 -0700
-lib/commonmarker/renderer/html_renderer.rb	Fri, 26 Jun 2015 14:29:46 -0700
-lib/commonmarker/version.rb	Fri, 26 Jun 2015 14:29:46 -0700
-ext/commonmarker/commonmarker.c	Fri, 26 Jun 2015 14:29:46 -0700
+Fri, 26 Jun 2015 14:31:34 -0700
+lib/commonmarker.rb	Fri, 26 Jun 2015 14:30:13 -0700
+lib/commonmarker/config.rb	Fri, 26 Jun 2015 14:30:13 -0700
+lib/commonmarker/renderer.rb	Fri, 26 Jun 2015 14:30:13 -0700
+lib/commonmarker/renderer/html_renderer.rb	Fri, 26 Jun 2015 14:30:13 -0700
+lib/commonmarker/version.rb	Fri, 26 Jun 2015 14:30:35 -0700
+ext/commonmarker/commonmarker.c	Fri, 26 Jun 2015 14:30:13 -0700
