@@ -122,7 +122,7 @@
         
         <div class="method-heading">
           <span class="method-name">render_doc</span><span
-            class="method-args">(text, option = :default)</span>
+            class="method-args">(text, options = :default)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -142,10 +142,12 @@ indicating the parse options</p>
 
           
           <div class="method-source-code" id="render_doc-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 30</span>
-<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">option</span> = <span class="ruby-value">:default</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 34</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">options</span> = <span class="ruby-value">:default</span>)
   <span class="ruby-identifier">fail</span> <span class="ruby-constant">TypeError</span>, <span class="ruby-string">&#39;text must be a string!&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">text</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
-  <span class="ruby-constant">Node</span>.<span class="ruby-identifier">parse_document</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">text</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">option</span>))
+  <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:parse</span>)
+  <span class="ruby-identifier">text</span> = <span class="ruby-identifier">text</span>.<span class="ruby-identifier">encode</span>(<span class="ruby-string">&#39;UTF-8&#39;</span>)
+  <span class="ruby-constant">Node</span>.<span class="ruby-identifier">parse_document</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">text</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">opts</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -161,7 +163,7 @@ indicating the parse options</p>
         
         <div class="method-heading">
           <span class="method-name">render_html</span><span
-            class="method-args">(text, option = :default)</span>
+            class="method-args">(text, options = :default)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -173,7 +175,7 @@ indicating the parse options</p>
           <p>Public:  Parses a Markdown string into an HTML string.</p>
 
 <p>text - A {String} of text option - Either a {Symbol} or {Array of Symbol}s
-indicating the parse options</p>
+indicating the render options</p>
 
 <p>Returns a {String} of converted HTML.</p>
           
@@ -181,10 +183,13 @@ indicating the parse options</p>
 
           
           <div class="method-source-code" id="render_html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 19</span>
-<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">option</span> = <span class="ruby-value">:default</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 20</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">options</span> = <span class="ruby-value">:default</span>)
   <span class="ruby-identifier">fail</span> <span class="ruby-constant">TypeError</span>, <span class="ruby-string">&#39;text must be a string!&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">text</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
-  <span class="ruby-constant">Node</span>.<span class="ruby-identifier">markdown_to_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">option</span>))
+  <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
+  <span class="ruby-identifier">text</span> = <span class="ruby-identifier">text</span>.<span class="ruby-identifier">encode</span>(<span class="ruby-string">&#39;UTF-8&#39;</span>)
+  <span class="ruby-identifier">html</span> = <span class="ruby-constant">Node</span>.<span class="ruby-identifier">markdown_to_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">opts</span>)
+  <span class="ruby-identifier">html</span>.<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;UTF-8&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           

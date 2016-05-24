@@ -72,6 +72,10 @@
   
     <li><a href="./CommonMarker/Config.html">CommonMarker::Config</a>
   
+    <li><a href="./CommonMarker/Config/Parse.html">CommonMarker::Config::Parse</a>
+  
+    <li><a href="./CommonMarker/Config/Render.html">CommonMarker::Config::Render</a>
+  
     <li><a href="./CommonMarker/HtmlRenderer.html">CommonMarker::HtmlRenderer</a>
   
     <li><a href="./CommonMarker/Node.html">CommonMarker::Node</a>
@@ -149,6 +153,14 @@ information.</p>
 
 <h4 id="label-Example%3A+walking+the+AST">Example: walking the AST<span><a href="#label-Example%3A+walking+the+AST">&para;</a> <a href="#documentation">&uarr;</a></span></h4>
 
+<p>You can use <code>walk</code> or <code>each</code> to iterate over nodes:</p>
+<ul><li>
+<p><code>walk</code> will iterate on a node and recursively iterate on a
+node&#39;s children.</p>
+</li><li>
+<p><code>each</code> will iterate on a node and its children, but no further.</p>
+</li></ul>
+
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
 
 <span class="ruby-comment"># parse the files specified on the command line</span>
@@ -164,7 +176,7 @@ information.</p>
 <span class="ruby-comment"># Capitalize all regular text in headers</span>
 <span class="ruby-identifier">doc</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
   <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> :<span class="ruby-identifier">header</span>
-    <span class="ruby-identifier">node</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">subnode</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">node</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">subnode</span><span class="ruby-operator">|</span>
       <span class="ruby-keyword">if</span> <span class="ruby-identifier">subnode</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> :<span class="ruby-identifier">text</span>
         <span class="ruby-identifier">subnode</span>.<span class="ruby-identifier">string_content</span> = <span class="ruby-identifier">subnode</span>.<span class="ruby-identifier">string_content</span>.<span class="ruby-identifier">upcase</span>
       <span class="ruby-keyword">end</span>
@@ -214,36 +226,41 @@ more customizable. For example:</p>
 
 <h2 id="label-Options">Options<span><a href="#label-Options">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
 
-<p>CommonMarker accepts the same options that CMark does, as symbols:</p>
-<ul><li>
-<p><code>:default</code> - The default rendering.</p>
-</li><li>
-<p><code>:sourcepos</code> - Include source position in rendered HTML.</p>
-</li><li>
-<p><code>:hardbreaks</code> - Treat <code>\n</code> as hardbreaks (by adding
-<code>&lt;br/&gt;</code>).</p>
-</li><li>
-<p><code>:normalize</code> - Attempt to normalize the HTML.</p>
-</li><li>
-<p><code>:smart</code> - Use smart punctuation (curly quotes, etc.).</p>
-</li></ul>
+<p>CommonMarker accepts the same options that CMark does, as symbols. Note
+that there is a distinction in CMark for “parse” options and “render”
+options, which are represented in the tables below.</p>
 
-<p>Pass these in as a single symbol argument:</p>
+<h3 id="label-Parse+options">Parse options<span><a href="#label-Parse+options">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
 
-<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
-<span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&quot;\&quot;Hello,\&quot; said the spider.&quot;</span>, :<span class="ruby-identifier">smart</span>)
+<p>| Name | Description | |——-|————–| | <code>:default</code> | The default
+parsing system.<br> | <code>:normalize</code> | Attempt to normalize the
+HTML. | <code>:smart</code> | Use smart punctuation (curly quotes, etc.). |
+<code>:validate_utf8</code> | Replace illegal sequences with the
+replacement character <code>U+FFFD</code>.</p>
+
+<h3 id="label-Render+options">Render options<span><a href="#label-Render+options">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+
+<p>| Name | Description | |——-|————–| | <code>:default</code> | The default
+rendering system. | <code>:sourcepos</code> | Include source position in
+rendered HTML. | <code>:hardbreaks</code> | Treat <code>\n</code> as
+hardbreaks (by adding <code>&lt;br/&gt;</code>). | <code>:safe</code> |
+Suppress raw HTML and unsafe links.</p>
+
+<h3 id="label-Passing+options">Passing options<span><a href="#label-Passing+options">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+
+<p>To apply a single option, pass it in as a symbol argument:</p>
+
+<pre class="ruby"><span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-string">&quot;\&quot;Hello,\&quot; said the spider.&quot;</span>, :<span class="ruby-identifier">smart</span>)
 <span class="ruby-comment"># &lt;p&gt;“Hello,” said the spider.&lt;/p&gt;\n</span>
 </pre>
 
-<p>To have multiple options applied, pass in an array of options:</p>
+<p>To have multiple options applied, pass in an array of symbols:</p>
 
-<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
-<span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&quot;\&quot;Hello,\&quot; said the spider.\n\&quot;&#39;Shelob&#39; is my name.\&quot;&quot;</span>, [:<span class="ruby-identifier">hardbreaks</span>, :<span class="ruby-identifier">smart</span>])
-<span class="ruby-comment"># &lt;p&gt;“Hello,” said the spider.&lt;/br&gt;“‘Shelob’ is my name.”&lt;/p&gt;</span>
+<pre class="ruby"><span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&quot;\&quot;&#39;Shelob&#39; is my name.\&quot;&quot;</span>, [:<span class="ruby-identifier">hardbreaks</span>, :<span class="ruby-identifier">sourcepos</span>])
 </pre>
 
 <p>For more information on these options, see <a
-href="http://git.io/vLIHE">the CMark documentation</a>.</p>
+href="http://git.io/vlQii">the CMark documentation</a>.</p>
 
 <h2 id="label-Hacking">Hacking<span><a href="#label-Hacking">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
 

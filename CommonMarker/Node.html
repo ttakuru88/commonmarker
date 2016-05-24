@@ -65,7 +65,18 @@
   
 </div>
 
-    
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><span class="include">Enumerable</span>
+  
+  
+  </ul>
+</div>
+
     
     <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
@@ -88,6 +99,8 @@
     <li ><a href="#method-i-append_child">#append_child</a>
     
     <li ><a href="#method-i-delete">#delete</a>
+    
+    <li ><a href="#method-i-each">#each</a>
     
     <li ><a href="#method-i-each_child">#each_child</a>
     
@@ -126,6 +139,8 @@
     <li ><a href="#method-i-prepend_child">#prepend_child</a>
     
     <li ><a href="#method-i-previous">#previous</a>
+    
+    <li ><a href="#method-i-sourcepos">#sourcepos</a>
     
     <li ><a href="#method-i-string_content">#string_content</a>
     
@@ -200,21 +215,19 @@
 
           
           <div class="method-source-code" id="html_escape_href-source">
-            <pre>static VALUE
-rb_html_escape_href(VALUE self, VALUE rb_text)
-{
-        char *text, *result;
-        int len;
-        cmark_strbuf buf = GH_BUF_INIT;
-        Check_Type(rb_text, T_STRING);
+            <pre>static VALUE rb_html_escape_href(VALUE self, VALUE rb_text) {
+  char *result;
+  cmark_strbuf buf = GH_BUF_INIT;
 
-        text = (char *)RSTRING_PTR(rb_text);
-        len = RSTRING_LEN(rb_text);
+  Check_Type(rb_text, T_STRING);
 
-        houdini_escape_href(&amp;buf, text, len);
-        result = (char *)cmark_strbuf_detach(&amp;buf);
+  if (houdini_escape_href(&amp;buf, (const uint8_t *)RSTRING_PTR(rb_text),
+                          RSTRING_LEN(rb_text))) {
+    result = (char *)cmark_strbuf_detach(&amp;buf);
+    return rb_str_new2(result);
+  }
 
-        return rb_str_new2(result);
+  return rb_text;
 }</pre>
           </div>
           
@@ -245,21 +258,19 @@ rb_html_escape_href(VALUE self, VALUE rb_text)
 
           
           <div class="method-source-code" id="html_escape_html-source">
-            <pre>static VALUE
-rb_html_escape_html(VALUE self, VALUE rb_text)
-{
-        char *text, *result;
-        int len;
-        cmark_strbuf buf = GH_BUF_INIT;
-        Check_Type(rb_text, T_STRING);
+            <pre>static VALUE rb_html_escape_html(VALUE self, VALUE rb_text) {
+  char *result;
+  cmark_strbuf buf = GH_BUF_INIT;
 
-        text = (char *)RSTRING_PTR(rb_text);
-        len = RSTRING_LEN(rb_text);
+  Check_Type(rb_text, T_STRING);
 
-        houdini_escape_html0(&amp;buf, text, len, 0);
-        result = (char *)cmark_strbuf_detach(&amp;buf);
+  if (houdini_escape_html0(&amp;buf, (const uint8_t *)RSTRING_PTR(rb_text),
+                           RSTRING_LEN(rb_text), 0)) {
+    result = (char *)cmark_strbuf_detach(&amp;buf);
+    return rb_str_new2(result);
+  }
 
-        return rb_str_new2(result);
+  return rb_text;
 }</pre>
           </div>
           
@@ -290,20 +301,23 @@ rb_html_escape_html(VALUE self, VALUE rb_text)
 
           
           <div class="method-source-code" id="markdown_to_html-source">
-            <pre>static VALUE
-rb_markdown_to_html(VALUE self, VALUE rb_text, VALUE rb_options)
-{
-        char *str;
-        int len, options;
+            <pre>static VALUE rb_markdown_to_html(VALUE self, VALUE rb_text, VALUE rb_options) {
+  char *str;
+  int len, options;
 
-        Check_Type(rb_text, T_STRING);
-        Check_Type(rb_options, T_FIXNUM);
+  Check_Type(rb_text, T_STRING);
+  Check_Type(rb_options, T_FIXNUM);
 
-        str = (char *)RSTRING_PTR(rb_text);
-        len = RSTRING_LEN(rb_text);
-        options = FIX2INT(rb_options);
+  str = (char *)RSTRING_PTR(rb_text);
+  len = RSTRING_LEN(rb_text);
+  options = FIX2INT(rb_options);
 
-        return rb_str_new2(cmark_markdown_to_html(str, len, options));
+  char *html = cmark_markdown_to_html(str, len, options);
+  VALUE ruby_html = rb_str_new2(html);
+
+  free(html);
+
+  return ruby_html;
 }</pre>
           </div>
           
@@ -374,59 +388,57 @@ following:</p>
 
           
           <div class="method-source-code" id="new-source">
-            <pre>static VALUE
-rb_node_new(VALUE self, VALUE type)
-{
-        cmark_node_type node_type = 0;
-        cmark_node *node;
+            <pre>static VALUE rb_node_new(VALUE self, VALUE type) {
+  cmark_node_type node_type = 0;
+  cmark_node *node;
 
-        Check_Type(type, T_SYMBOL);
+  Check_Type(type, T_SYMBOL);
 
-        if (type == sym_document)
-                node_type = CMARK_NODE_DOCUMENT;
-        else if (type == sym_blockquote)
-                node_type = CMARK_NODE_BLOCK_QUOTE;
-        else if (type == sym_list)
-                node_type = CMARK_NODE_LIST;
-        else if (type == sym_list_item)
-                node_type = CMARK_NODE_ITEM;
-        else if (type == sym_code_block)
-                node_type = CMARK_NODE_CODE_BLOCK;
-        else if (type == sym_html)
-                node_type = CMARK_NODE_HTML;
-        else if (type == sym_paragraph)
-                node_type = CMARK_NODE_PARAGRAPH;
-        else if (type == sym_header)
-                node_type = CMARK_NODE_HEADER;
-        else if (type == sym_hrule)
-                node_type = CMARK_NODE_HRULE;
-        else if (type == sym_text)
-                node_type = CMARK_NODE_TEXT;
-        else if (type == sym_softbreak)
-                node_type = CMARK_NODE_SOFTBREAK;
-        else if (type == sym_linebreak)
-                node_type = CMARK_NODE_LINEBREAK;
-        else if (type == sym_code)
-                node_type = CMARK_NODE_CODE;
-        else if (type == sym_inline_html)
-                node_type = CMARK_NODE_INLINE_HTML;
-        else if (type == sym_emph)
-                node_type = CMARK_NODE_EMPH;
-        else if (type == sym_strong)
-                node_type = CMARK_NODE_STRONG;
-        else if (type == sym_link)
-                node_type = CMARK_NODE_LINK;
-        else if (type == sym_image)
-                node_type = CMARK_NODE_IMAGE;
-        else
-                rb_raise(rb_mNodeError, &quot;invalid node of type %d&quot;, node_type);
+  if (type == sym_document)
+    node_type = CMARK_NODE_DOCUMENT;
+  else if (type == sym_blockquote)
+    node_type = CMARK_NODE_BLOCK_QUOTE;
+  else if (type == sym_list)
+    node_type = CMARK_NODE_LIST;
+  else if (type == sym_list_item)
+    node_type = CMARK_NODE_ITEM;
+  else if (type == sym_code_block)
+    node_type = CMARK_NODE_CODE_BLOCK;
+  else if (type == sym_html)
+    node_type = CMARK_NODE_HTML;
+  else if (type == sym_paragraph)
+    node_type = CMARK_NODE_PARAGRAPH;
+  else if (type == sym_header)
+    node_type = CMARK_NODE_HEADER;
+  else if (type == sym_hrule)
+    node_type = CMARK_NODE_HRULE;
+  else if (type == sym_text)
+    node_type = CMARK_NODE_TEXT;
+  else if (type == sym_softbreak)
+    node_type = CMARK_NODE_SOFTBREAK;
+  else if (type == sym_linebreak)
+    node_type = CMARK_NODE_LINEBREAK;
+  else if (type == sym_code)
+    node_type = CMARK_NODE_CODE;
+  else if (type == sym_inline_html)
+    node_type = CMARK_NODE_INLINE_HTML;
+  else if (type == sym_emph)
+    node_type = CMARK_NODE_EMPH;
+  else if (type == sym_strong)
+    node_type = CMARK_NODE_STRONG;
+  else if (type == sym_link)
+    node_type = CMARK_NODE_LINK;
+  else if (type == sym_image)
+    node_type = CMARK_NODE_IMAGE;
+  else
+    rb_raise(rb_mNodeError, &quot;invalid node of type %d&quot;, node_type);
 
-        node = cmark_node_new(node_type);
-        if (node == NULL) {
-                rb_raise(rb_mNodeError, &quot;could not create node of type %d&quot;, node_type);
-        }
+  node = cmark_node_new(node_type);
+  if (node == NULL) {
+    rb_raise(rb_mNodeError, &quot;could not create node of type %d&quot;, node_type);
+  }
 
-        return rb_node_to_value(node);
+  return rb_node_to_value(node);
 }</pre>
           </div>
           
@@ -457,26 +469,25 @@ rb_node_new(VALUE self, VALUE type)
 
           
           <div class="method-source-code" id="parse_document-source">
-            <pre>static VALUE
-rb_parse_document(VALUE self, VALUE rb_text, VALUE rb_len, VALUE rb_options)
-{
-        char *text;
-        int len, options;
-        cmark_node *doc;
-        Check_Type(rb_text, T_STRING);
-        Check_Type(rb_len, T_FIXNUM);
-        Check_Type(rb_options, T_FIXNUM);
+            <pre>static VALUE rb_parse_document(VALUE self, VALUE rb_text, VALUE rb_len,
+                               VALUE rb_options) {
+  char *text;
+  int len, options;
+  cmark_node *doc;
+  Check_Type(rb_text, T_STRING);
+  Check_Type(rb_len, T_FIXNUM);
+  Check_Type(rb_options, T_FIXNUM);
 
-        text = (char *)RSTRING_PTR(rb_text);
-        len = FIX2INT(rb_len);
-        options = FIX2INT(rb_options);
+  text = (char *)RSTRING_PTR(rb_text);
+  len = FIX2INT(rb_len);
+  options = FIX2INT(rb_options);
 
-        doc = cmark_parse_document(text, len, options);
-        if (doc == NULL) {
-                rb_raise(rb_mNodeError, &quot;error parsing document&quot;);
-        }
+  doc = cmark_parse_document(text, len, options);
+  if (doc == NULL) {
+    rb_raise(rb_mNodeError, &quot;error parsing document&quot;);
+  }
 
-        return rb_node_to_value(doc);
+  return rb_node_to_value(doc);
 }</pre>
           </div>
           
@@ -517,18 +528,21 @@ rb_parse_document(VALUE self, VALUE rb_text, VALUE rb_len, VALUE rb_options)
 
           
           <div class="method-source-code" id="_render_html-source">
-            <pre>static VALUE
-rb_render_html(VALUE n, VALUE rb_options)
-{
-        int options;
-        cmark_node *node;
-        Check_Type(rb_options, T_FIXNUM);
+            <pre>static VALUE rb_render_html(VALUE n, VALUE rb_options) {
+  int options;
+  cmark_node *node;
+  Check_Type(rb_options, T_FIXNUM);
 
-        options = FIX2INT(rb_options);
+  options = FIX2INT(rb_options);
 
-        Data_Get_Struct(n, cmark_node, node);
+  Data_Get_Struct(n, cmark_node, node);
 
-        return rb_str_new2(cmark_render_html(node, options));
+  char *html = cmark_render_html(node, options);
+  VALUE ruby_html = rb_str_new2(html);
+
+  free(html);
+
+  return ruby_html;
 }</pre>
           </div>
           
@@ -564,21 +578,19 @@ if the node can&#39;t be inserted.</p>
 
           
           <div class="method-source-code" id="append_child-source">
-            <pre>static VALUE
-rb_node_append_child(VALUE self, VALUE child)
-{
-        cmark_node *node1, *node2;
-        Data_Get_Struct(self, cmark_node, node1);
+            <pre>static VALUE rb_node_append_child(VALUE self, VALUE child) {
+  cmark_node *node1, *node2;
+  Data_Get_Struct(self, cmark_node, node1);
 
-        Data_Get_Struct(child, cmark_node, node2);
+  Data_Get_Struct(child, cmark_node, node2);
 
-        if (!cmark_node_append_child(node1, node2)) {
-                rb_raise(rb_mNodeError, &quot;could not append child&quot;);
-        }
+  if (!cmark_node_append_child(node1, node2)) {
+    rb_raise(rb_mNodeError, &quot;could not append child&quot;);
+  }
 
-        rb_parent_added(child);
+  rb_parent_added(child);
 
-        return Qtrue;
+  return Qtrue;
 }</pre>
           </div>
           
@@ -610,18 +622,56 @@ siblings appropriately).</p>
 
           
           <div class="method-source-code" id="delete-source">
-            <pre>static VALUE
-rb_node_unlink(VALUE self)
-{
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_unlink(VALUE self) {
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        cmark_node_unlink(node);
+  cmark_node_unlink(node);
 
-        rb_parent_removed(self);
+  rb_parent_removed(self);
 
-        return Qnil;
+  return Qnil;
 }</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-each" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">each</span><span
+            class="method-args">() { |child| ... }</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Public: Iterate over the children (if any) of the current pointer.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="each-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 28</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">enum_for</span>(<span class="ruby-value">:each</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">block_given?</span>
+
+  <span class="ruby-identifier">child</span> = <span class="ruby-identifier">first_child</span>
+  <span class="ruby-keyword">while</span> <span class="ruby-identifier">child</span>
+    <span class="ruby-identifier">nextchild</span> = <span class="ruby-identifier">child</span>.<span class="ruby-identifier">next</span>
+    <span class="ruby-keyword">yield</span> <span class="ruby-identifier">child</span>
+    <span class="ruby-identifier">child</span> = <span class="ruby-identifier">nextchild</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
@@ -636,7 +686,7 @@ rb_node_unlink(VALUE self)
         
         <div class="method-heading">
           <span class="method-name">each_child</span><span
-            class="method-args">() { |child| ... }</span>
+            class="method-args">(&block)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -645,20 +695,16 @@ rb_node_unlink(VALUE self)
 
         <div class="method-description">
           
-          <p>Internal: Iterate over the children (if any) of the current pointer.</p>
+          <p>Deprecated: Please use `each` instead</p>
           
           
 
           
           <div class="method-source-code" id="each_child-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 54</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">each_child</span>
-  <span class="ruby-identifier">child</span> = <span class="ruby-identifier">first_child</span>
-  <span class="ruby-keyword">while</span> <span class="ruby-identifier">child</span>
-    <span class="ruby-identifier">nextchild</span> = <span class="ruby-identifier">child</span>.<span class="ruby-identifier">next</span>
-    <span class="ruby-keyword">yield</span> <span class="ruby-identifier">child</span>
-    <span class="ruby-identifier">child</span> = <span class="ruby-identifier">nextchild</span>
-  <span class="ruby-keyword">end</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 40</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">each_child</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-identifier">warn</span> <span class="ruby-string">&#39;[DEPRECATION] `each_child` is deprecated.  Please use `each` instead.&#39;</span>
+  <span class="ruby-identifier">each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -693,20 +739,18 @@ retrieved.</p>
 
           
           <div class="method-source-code" id="fence_info-source">
-            <pre>static VALUE
-rb_node_get_fence_info(VALUE self)
-{
-        const char *fence_info;
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_fence_info(VALUE self) {
+  const char *fence_info;
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        fence_info = cmark_node_get_fence_info(node);
+  fence_info = cmark_node_get_fence_info(node);
 
-        if (fence_info == NULL) {
-                rb_raise(rb_mNodeError, &quot;could not get fence_info&quot;);
-        }
+  if (fence_info == NULL) {
+    rb_raise(rb_mNodeError, &quot;could not get fence_info&quot;);
+  }
 
-        return rb_str_new2(fence_info);
+  return rb_str_new2(fence_info);
 }</pre>
           </div>
           
@@ -742,21 +786,19 @@ be set.</p>
 
           
           <div class="method-source-code" id="fence_info-3D-source">
-            <pre>static VALUE
-rb_node_set_fence_info(VALUE self, VALUE info)
-{
-        char *text;
-        cmark_node *node;
-        Check_Type(info, T_STRING);
+            <pre>static VALUE rb_node_set_fence_info(VALUE self, VALUE info) {
+  char *text;
+  cmark_node *node;
+  Check_Type(info, T_STRING);
 
-        Data_Get_Struct(self, cmark_node, node);
-        text = StringValueCStr(info);
+  Data_Get_Struct(self, cmark_node, node);
+  text = StringValueCStr(info);
 
-        if (!cmark_node_set_fence_info(node, text)) {
-                rb_raise(rb_mNodeError, &quot;could not set fence_info&quot;);
-        }
+  if (!cmark_node_set_fence_info(node, text)) {
+    rb_raise(rb_mNodeError, &quot;could not set fence_info&quot;);
+  }
 
-        return Qnil;
+  return Qnil;
 }</pre>
           </div>
           
@@ -789,15 +831,13 @@ rb_node_set_fence_info(VALUE self, VALUE info)
 
           
           <div class="method-source-code" id="first_child-source">
-            <pre>static VALUE
-rb_node_first_child(VALUE self)
-{
-        cmark_node *node, *child;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_first_child(VALUE self) {
+  cmark_node *node, *child;
+  Data_Get_Struct(self, cmark_node, node);
 
-        child = cmark_node_first_child(node);
+  child = cmark_node_first_child(node);
 
-        return rb_node_to_value(child);
+  return rb_node_to_value(child);
 }</pre>
           </div>
           
@@ -832,20 +872,18 @@ retrieved.</p>
 
           
           <div class="method-source-code" id="header_level-source">
-            <pre>static VALUE
-rb_node_get_header_level(VALUE self)
-{
-        int header_level;
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_header_level(VALUE self) {
+  int header_level;
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        header_level = cmark_node_get_header_level(node);
+  header_level = cmark_node_get_header_level(node);
 
-        if (header_level == 0) {
-                rb_raise(rb_mNodeError, &quot;could not get header_level&quot;);
-        }
+  if (header_level == 0) {
+    rb_raise(rb_mNodeError, &quot;could not get header_level&quot;);
+  }
 
-        return INT2NUM(header_level);
+  return INT2NUM(header_level);
 }</pre>
           </div>
           
@@ -881,21 +919,19 @@ can&#39;t be set.</p>
 
           
           <div class="method-source-code" id="header_level-3D-source">
-            <pre>static VALUE
-rb_node_set_header_level(VALUE self, VALUE level)
-{
-        int l;
-        cmark_node *node;
-        Check_Type(level, T_FIXNUM);
+            <pre>static VALUE rb_node_set_header_level(VALUE self, VALUE level) {
+  int l;
+  cmark_node *node;
+  Check_Type(level, T_FIXNUM);
 
-        Data_Get_Struct(self, cmark_node, node);
-        l = FIX2INT(level);
+  Data_Get_Struct(self, cmark_node, node);
+  l = FIX2INT(level);
 
-        if (!cmark_node_set_header_level(node, l)) {
-                rb_raise(rb_mNodeError, &quot;could not set header_level&quot;);
-        }
+  if (!cmark_node_set_header_level(node, l)) {
+    rb_raise(rb_mNodeError, &quot;could not set header_level&quot;);
+  }
 
-        return Qnil;
+  return Qnil;
 }</pre>
           </div>
           
@@ -931,21 +967,19 @@ if the node can&#39;t be inserted.</p>
 
           
           <div class="method-source-code" id="insert_after-source">
-            <pre>static VALUE
-rb_node_insert_after(VALUE self, VALUE sibling)
-{
-        cmark_node *node1, *node2;
-        Data_Get_Struct(self, cmark_node, node1);
+            <pre>static VALUE rb_node_insert_after(VALUE self, VALUE sibling) {
+  cmark_node *node1, *node2;
+  Data_Get_Struct(self, cmark_node, node1);
 
-        Data_Get_Struct(sibling, cmark_node, node2);
+  Data_Get_Struct(sibling, cmark_node, node2);
 
-        if (!cmark_node_insert_after(node1, node2)) {
-                rb_raise(rb_mNodeError, &quot;could not insert after&quot;);
-        }
+  if (!cmark_node_insert_after(node1, node2)) {
+    rb_raise(rb_mNodeError, &quot;could not insert after&quot;);
+  }
 
-        rb_parent_added(sibling);
+  rb_parent_added(sibling);
 
-        return Qtrue;
+  return Qtrue;
 }</pre>
           </div>
           
@@ -981,21 +1015,19 @@ if the node can&#39;t be inserted.</p>
 
           
           <div class="method-source-code" id="insert_before-source">
-            <pre>static VALUE
-rb_node_insert_before(VALUE self, VALUE sibling)
-{
-        cmark_node *node1, *node2;
-        Data_Get_Struct(self, cmark_node, node1);
+            <pre>static VALUE rb_node_insert_before(VALUE self, VALUE sibling) {
+  cmark_node *node1, *node2;
+  Data_Get_Struct(self, cmark_node, node1);
 
-        Data_Get_Struct(sibling, cmark_node, node2);
+  Data_Get_Struct(sibling, cmark_node, node2);
 
-        if (!cmark_node_insert_before(node1, node2)) {
-                rb_raise(rb_mNodeError, &quot;could not insert before&quot;);
-        }
+  if (!cmark_node_insert_before(node1, node2)) {
+    rb_raise(rb_mNodeError, &quot;could not insert before&quot;);
+  }
 
-        rb_parent_added(sibling);
+  rb_parent_added(sibling);
 
-        return Qtrue;
+  return Qtrue;
 }</pre>
           </div>
           
@@ -1028,15 +1060,13 @@ rb_node_insert_before(VALUE self, VALUE sibling)
 
           
           <div class="method-source-code" id="last_child-source">
-            <pre>static VALUE
-rb_node_last_child(VALUE self)
-{
-        cmark_node *node, *child;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_last_child(VALUE self) {
+  cmark_node *node, *child;
+  Data_Get_Struct(self, cmark_node, node);
 
-        child = cmark_node_last_child(node);
+  child = cmark_node_last_child(node);
 
-        return rb_node_to_value(child);
+  return rb_node_to_value(child);
 }</pre>
           </div>
           
@@ -1072,20 +1102,17 @@ retrieved.</p>
 
           
           <div class="method-source-code" id="list_start-source">
-            <pre>static VALUE
-rb_node_get_list_start(VALUE self)
-{
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_list_start(VALUE self) {
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        if (cmark_node_get_type(node) != CMARK_NODE_LIST
-            || cmark_node_get_list_type(node) != CMARK_ORDERED_LIST) {
-                rb_raise(rb_mNodeError,
-                         &quot;can&#39;t get list_start for non-ordered list %d&quot;,
-                         cmark_node_get_list_type(node));
-        }
+  if (cmark_node_get_type(node) != CMARK_NODE_LIST ||
+      cmark_node_get_list_type(node) != CMARK_ORDERED_LIST) {
+    rb_raise(rb_mNodeError, &quot;can&#39;t get list_start for non-ordered list %d&quot;,
+             cmark_node_get_list_type(node));
+  }
 
-        return INT2NUM(cmark_node_get_list_start(node));
+  return INT2NUM(cmark_node_get_list_start(node));
 }</pre>
           </div>
           
@@ -1122,21 +1149,19 @@ can&#39;t be set.</p>
 
           
           <div class="method-source-code" id="list_start-3D-source">
-            <pre>static VALUE
-rb_node_set_list_start(VALUE self, VALUE start)
-{
-        int s;
-        cmark_node *node;
-        Check_Type(start, T_FIXNUM);
+            <pre>static VALUE rb_node_set_list_start(VALUE self, VALUE start) {
+  int s;
+  cmark_node *node;
+  Check_Type(start, T_FIXNUM);
 
-        Data_Get_Struct(self, cmark_node, node);
-        s = FIX2INT(start);
+  Data_Get_Struct(self, cmark_node, node);
+  s = FIX2INT(start);
 
-        if (!cmark_node_set_list_start(node, s)) {
-                rb_raise(rb_mNodeError, &quot;could not set list_start&quot;);
-        }
+  if (!cmark_node_set_list_start(node, s)) {
+    rb_raise(rb_mNodeError, &quot;could not set list_start&quot;);
+  }
 
-        return Qnil;
+  return Qnil;
 }</pre>
           </div>
           
@@ -1171,21 +1196,18 @@ retrieved.</p>
 
           
           <div class="method-source-code" id="list_tight-source">
-            <pre>static VALUE
-rb_node_get_list_tight(VALUE self)
-{
-        int flag;
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_list_tight(VALUE self) {
+  int flag;
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        if (cmark_node_get_type(node) != CMARK_NODE_LIST) {
-                rb_raise(rb_mNodeError,
-                         &quot;can&#39;t get list_tight for non-list&quot;);
-        }
+  if (cmark_node_get_type(node) != CMARK_NODE_LIST) {
+    rb_raise(rb_mNodeError, &quot;can&#39;t get list_tight for non-list&quot;);
+  }
 
-        flag = cmark_node_get_list_tight(node);
+  flag = cmark_node_get_list_tight(node);
 
-        return flag ? Qtrue : Qfalse;
+  return flag ? Qtrue : Qfalse;
 }</pre>
           </div>
           
@@ -1221,19 +1243,17 @@ be set.</p>
 
           
           <div class="method-source-code" id="list_tight-3D-source">
-            <pre>static VALUE
-rb_node_set_list_tight(VALUE self, VALUE tight)
-{
-        int t;
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
-        t = RTEST(tight);
+            <pre>static VALUE rb_node_set_list_tight(VALUE self, VALUE tight) {
+  int t;
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
+  t = RTEST(tight);
 
-        if (!cmark_node_set_list_tight(node, t)) {
-                rb_raise(rb_mNodeError, &quot;could not set list_tight&quot;);
-        }
+  if (!cmark_node_set_list_tight(node, t)) {
+    rb_raise(rb_mNodeError, &quot;could not set list_tight&quot;);
+  }
 
-        return Qnil;
+  return Qnil;
 }</pre>
           </div>
           
@@ -1267,25 +1287,23 @@ title can&#39;t be retrieved.</p>
 
           
           <div class="method-source-code" id="list_type-source">
-            <pre>static VALUE
-rb_node_get_list_type(VALUE self)
-{
-        int list_type;
-        cmark_node *node;
-        VALUE symbol;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_list_type(VALUE self) {
+  int list_type;
+  cmark_node *node;
+  VALUE symbol;
+  Data_Get_Struct(self, cmark_node, node);
 
-        list_type = cmark_node_get_list_type(node);
+  list_type = cmark_node_get_list_type(node);
 
-        if (list_type == CMARK_BULLET_LIST) {
-                symbol = sym_bullet_list;
-        } else if (list_type == CMARK_ORDERED_LIST) {
-                symbol = sym_ordered_list;
-        } else {
-                rb_raise(rb_mNodeError, &quot;could not get list_type&quot;);
-        }
+  if (list_type == CMARK_BULLET_LIST) {
+    symbol = sym_bullet_list;
+  } else if (list_type == CMARK_ORDERED_LIST) {
+    symbol = sym_ordered_list;
+  } else {
+    rb_raise(rb_mNodeError, &quot;could not get list_type&quot;);
+  }
 
-        return symbol;
+  return symbol;
 }</pre>
           </div>
           
@@ -1321,28 +1339,26 @@ be set.</p>
 
           
           <div class="method-source-code" id="list_type-3D-source">
-            <pre>static VALUE
-rb_node_set_list_type(VALUE self, VALUE list_type)
-{
-        int type = 0;
-        cmark_node *node;
-        Check_Type(list_type, T_SYMBOL);
+            <pre>static VALUE rb_node_set_list_type(VALUE self, VALUE list_type) {
+  int type = 0;
+  cmark_node *node;
+  Check_Type(list_type, T_SYMBOL);
 
-        Data_Get_Struct(self, cmark_node, node);
+  Data_Get_Struct(self, cmark_node, node);
 
-        if (list_type == sym_bullet_list) {
-                type = CMARK_BULLET_LIST;
-        } else if (list_type == sym_ordered_list) {
-                type = CMARK_ORDERED_LIST;
-        } else {
-                rb_raise(rb_mNodeError, &quot;invalid list_type&quot;);
-        }
+  if (list_type == sym_bullet_list) {
+    type = CMARK_BULLET_LIST;
+  } else if (list_type == sym_ordered_list) {
+    type = CMARK_ORDERED_LIST;
+  } else {
+    rb_raise(rb_mNodeError, &quot;invalid list_type&quot;);
+  }
 
-        if (!cmark_node_set_list_type(node, type)) {
-                rb_raise(rb_mNodeError, &quot;could not set list_type&quot;);
-        }
+  if (!cmark_node_set_list_type(node, type)) {
+    rb_raise(rb_mNodeError, &quot;could not set list_type&quot;);
+  }
 
-        return Qnil;
+  return Qnil;
 }</pre>
           </div>
           
@@ -1375,15 +1391,13 @@ rb_node_set_list_type(VALUE self, VALUE list_type)
 
           
           <div class="method-source-code" id="next-source">
-            <pre>static VALUE
-rb_node_next(VALUE self)
-{
-        cmark_node *node, *next;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_next(VALUE self) {
+  cmark_node *node, *next;
+  Data_Get_Struct(self, cmark_node, node);
 
-        next = cmark_node_next(node);
+  next = cmark_node_next(node);
 
-        return rb_node_to_value(next);
+  return rb_node_to_value(next);
 }</pre>
           </div>
           
@@ -1416,15 +1430,13 @@ rb_node_next(VALUE self)
 
           
           <div class="method-source-code" id="parent-source">
-            <pre>static VALUE
-rb_node_parent(VALUE self)
-{
-        cmark_node *node, *parent;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_parent(VALUE self) {
+  cmark_node *node, *parent;
+  Data_Get_Struct(self, cmark_node, node);
 
-        parent = cmark_node_parent(node);
+  parent = cmark_node_parent(node);
 
-        return rb_node_to_value(parent);
+  return rb_node_to_value(parent);
 }</pre>
           </div>
           
@@ -1460,21 +1472,19 @@ if the node can&#39;t be inserted.</p>
 
           
           <div class="method-source-code" id="prepend_child-source">
-            <pre>static VALUE
-rb_node_prepend_child(VALUE self, VALUE child)
-{
-        cmark_node *node1, *node2;
-        Data_Get_Struct(self, cmark_node, node1);
+            <pre>static VALUE rb_node_prepend_child(VALUE self, VALUE child) {
+  cmark_node *node1, *node2;
+  Data_Get_Struct(self, cmark_node, node1);
 
-        Data_Get_Struct(child, cmark_node, node2);
+  Data_Get_Struct(child, cmark_node, node2);
 
-        if (!cmark_node_prepend_child(node1, node2)) {
-                rb_raise(rb_mNodeError, &quot;could not prepend child&quot;);
-        }
+  if (!cmark_node_prepend_child(node1, node2)) {
+    rb_raise(rb_mNodeError, &quot;could not prepend child&quot;);
+  }
 
-        rb_parent_added(child);
+  rb_parent_added(child);
 
-        return Qtrue;
+  return Qtrue;
 }</pre>
           </div>
           
@@ -1507,15 +1517,64 @@ rb_node_prepend_child(VALUE self, VALUE child)
 
           
           <div class="method-source-code" id="previous-source">
-            <pre>static VALUE
-rb_node_previous(VALUE self)
-{
-        cmark_node *node, *previous;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_previous(VALUE self) {
+  cmark_node *node, *previous;
+  Data_Get_Struct(self, cmark_node, node);
 
-        previous = cmark_node_previous(node);
+  previous = cmark_node_previous(node);
 
-        return rb_node_to_value(previous);
+  return rb_node_to_value(previous);
+}</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-sourcepos" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">sourcepos</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Public: Fetches the sourcepos of the node.</p>
+
+<p>Returns a {Hash} containing {Symbol} keys of the positions.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="sourcepos-source">
+            <pre>static VALUE rb_node_get_sourcepos(VALUE self) {
+  int start_line, start_column, end_line, end_column;
+  VALUE result;
+
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
+
+  start_line = cmark_node_get_start_line(node);
+  start_column = cmark_node_get_start_column(node);
+  end_line = cmark_node_get_end_line(node);
+  end_column = cmark_node_get_end_column(node);
+
+  result = rb_hash_new();
+  rb_hash_aset(result, CSTR2SYM(&quot;start_line&quot;), INT2NUM(start_line));
+  rb_hash_aset(result, CSTR2SYM(&quot;start_column&quot;), INT2NUM(start_column));
+  rb_hash_aset(result, CSTR2SYM(&quot;end_line&quot;), INT2NUM(end_line));
+  rb_hash_aset(result, CSTR2SYM(&quot;end_column&quot;), INT2NUM(end_column));
+
+  return result;
 }</pre>
           </div>
           
@@ -1548,19 +1607,17 @@ rb_node_previous(VALUE self)
 
           
           <div class="method-source-code" id="string_content-source">
-            <pre>static VALUE
-rb_node_get_string_content(VALUE self)
-{
-        const char *text;
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_string_content(VALUE self) {
+  const char *text;
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        text = cmark_node_get_literal(node);
-        if (text == NULL) {
-                rb_raise(rb_mNodeError, &quot;could not get string content&quot;);
-        }
+  text = cmark_node_get_literal(node);
+  if (text == NULL) {
+    rb_raise(rb_mNodeError, &quot;could not get string content&quot;);
+  }
 
-        return rb_str_new2(text);
+  return rb_str_new2(text);
 }</pre>
           </div>
           
@@ -1596,19 +1653,19 @@ can&#39;t be set.</p>
 
           
           <div class="method-source-code" id="string_content-3D-source">
-            <pre>static VALUE
-rb_node_set_string_content(VALUE self, VALUE s)
-{
-        char *text;
-        cmark_node *node;
-        Check_Type(s, T_STRING);
+            <pre>static VALUE rb_node_set_string_content(VALUE self, VALUE s) {
+  char *text;
+  cmark_node *node;
+  Check_Type(s, T_STRING);
 
-        Data_Get_Struct(self, cmark_node, node);
-        text = StringValueCStr(s);
+  Data_Get_Struct(self, cmark_node, node);
+  text = StringValueCStr(s);
 
-        if (!cmark_node_set_literal(node, text)) {
-                rb_raise(rb_mNodeError, &quot;could not set string content&quot;);
-        }
+  if (!cmark_node_set_literal(node, text)) {
+    rb_raise(rb_mNodeError, &quot;could not set string content&quot;);
+  }
+
+  return Qnil;
 }</pre>
           </div>
           
@@ -1642,19 +1699,17 @@ title can&#39;t be retrieved.</p>
 
           
           <div class="method-source-code" id="title-source">
-            <pre>static VALUE
-rb_node_get_title(VALUE self)
-{
-        const char *text;
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_title(VALUE self) {
+  const char *text;
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        text = cmark_node_get_title(node);
-        if (text == NULL) {
-                rb_raise(rb_mNodeError, &quot;could not get title&quot;);
-        }
+  text = cmark_node_get_title(node);
+  if (text == NULL) {
+    rb_raise(rb_mNodeError, &quot;could not get title&quot;);
+  }
 
-        return rb_str_new2(text);
+  return rb_str_new2(text);
 }</pre>
           </div>
           
@@ -1690,21 +1745,19 @@ set.</p>
 
           
           <div class="method-source-code" id="title-3D-source">
-            <pre>static VALUE
-rb_node_set_title(VALUE self, VALUE title)
-{
-        char *text;
-        cmark_node *node;
-        Check_Type(title, T_STRING);
+            <pre>static VALUE rb_node_set_title(VALUE self, VALUE title) {
+  char *text;
+  cmark_node *node;
+  Check_Type(title, T_STRING);
 
-        Data_Get_Struct(self, cmark_node, node);
-        text = StringValueCStr(title);
+  Data_Get_Struct(self, cmark_node, node);
+  text = StringValueCStr(title);
 
-        if (!cmark_node_set_title(node, text)) {
-                rb_raise(rb_mNodeError, &quot;could not set title&quot;);
-        }
+  if (!cmark_node_set_title(node, text)) {
+    rb_raise(rb_mNodeError, &quot;could not set title&quot;);
+  }
 
-        return Qnil;
+  return Qnil;
 }</pre>
           </div>
           
@@ -1720,7 +1773,7 @@ rb_node_set_title(VALUE self, VALUE title)
         
         <div class="method-heading">
           <span class="method-name">to_html</span><span
-            class="method-args">(option = :default)</span>
+            class="method-args">(options = :default)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -1731,15 +1784,18 @@ rb_node_set_title(VALUE self, VALUE title)
           
           <p>Public: Convert the node to an HTML string.</p>
 
+<p>options - A {Symbol} or {Array of Symbol}s indicating the render options</p>
+
 <p>Returns a {String}.</p>
           
           
 
           
           <div class="method-source-code" id="to_html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 49</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_html</span>(<span class="ruby-identifier">option</span> = <span class="ruby-value">:default</span>)
-  <span class="ruby-identifier">_render_html</span>(<span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">option</span>)).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 22</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_html</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:default</span>)
+  <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
+  <span class="ruby-identifier">_render_html</span>(<span class="ruby-identifier">opts</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1772,78 +1828,76 @@ rb_node_set_title(VALUE self, VALUE title)
 
           
           <div class="method-source-code" id="type-source">
-            <pre>static VALUE
-rb_node_get_type(VALUE self)
-{
-        int node_type;
-        cmark_node *node;
-        VALUE symbol;
+            <pre>static VALUE rb_node_get_type(VALUE self) {
+  int node_type;
+  cmark_node *node;
+  VALUE symbol;
 
-        Data_Get_Struct(self, cmark_node, node);
+  Data_Get_Struct(self, cmark_node, node);
 
-        node_type = cmark_node_get_type(node);
-        symbol = Qnil;
+  node_type = cmark_node_get_type(node);
+  symbol = Qnil;
 
-        switch (node_type) {
-        case CMARK_NODE_DOCUMENT:
-                symbol = sym_document;
-                break;
-        case CMARK_NODE_BLOCK_QUOTE:
-                symbol = sym_blockquote;
-                break;
-        case CMARK_NODE_LIST:
-                symbol = sym_list;
-                break;
-        case CMARK_NODE_ITEM:
-                symbol = sym_list_item;
-                break;
-        case CMARK_NODE_CODE_BLOCK:
-                symbol = sym_code_block;
-                break;
-        case CMARK_NODE_HTML:
-                symbol = sym_html;
-                break;
-        case CMARK_NODE_PARAGRAPH:
-                symbol = sym_paragraph;
-                break;
-        case CMARK_NODE_HEADER:
-                symbol = sym_header;
-                break;
-        case CMARK_NODE_HRULE:
-                symbol = sym_hrule;
-                break;
-        case CMARK_NODE_TEXT:
-                symbol = sym_text;
-                break;
-        case CMARK_NODE_SOFTBREAK:
-                symbol = sym_softbreak;
-                break;
-        case CMARK_NODE_LINEBREAK:
-                symbol = sym_linebreak;
-                break;
-        case CMARK_NODE_CODE:
-                symbol = sym_code;
-                break;
-        case CMARK_NODE_INLINE_HTML:
-                symbol = sym_inline_html;
-                break;
-        case CMARK_NODE_EMPH:
-                symbol = sym_emph;
-                break;
-        case CMARK_NODE_STRONG:
-                symbol = sym_strong;
-                break;
-        case CMARK_NODE_LINK:
-                symbol = sym_link;
-                break;
-        case CMARK_NODE_IMAGE:
-                symbol = sym_image;
-                break;
-        default:
-                rb_raise(rb_mNodeError, &quot;invalid node type %d&quot;, node_type);
-        }
+  switch (node_type) {
+  case CMARK_NODE_DOCUMENT:
+    symbol = sym_document;
+    break;
+  case CMARK_NODE_BLOCK_QUOTE:
+    symbol = sym_blockquote;
+    break;
+  case CMARK_NODE_LIST:
+    symbol = sym_list;
+    break;
+  case CMARK_NODE_ITEM:
+    symbol = sym_list_item;
+    break;
+  case CMARK_NODE_CODE_BLOCK:
+    symbol = sym_code_block;
+    break;
+  case CMARK_NODE_HTML:
+    symbol = sym_html;
+    break;
+  case CMARK_NODE_PARAGRAPH:
+    symbol = sym_paragraph;
+    break;
+  case CMARK_NODE_HEADER:
+    symbol = sym_header;
+    break;
+  case CMARK_NODE_HRULE:
+    symbol = sym_hrule;
+    break;
+  case CMARK_NODE_TEXT:
+    symbol = sym_text;
+    break;
+  case CMARK_NODE_SOFTBREAK:
+    symbol = sym_softbreak;
+    break;
+  case CMARK_NODE_LINEBREAK:
+    symbol = sym_linebreak;
+    break;
+  case CMARK_NODE_CODE:
+    symbol = sym_code;
+    break;
+  case CMARK_NODE_INLINE_HTML:
+    symbol = sym_inline_html;
+    break;
+  case CMARK_NODE_EMPH:
+    symbol = sym_emph;
+    break;
+  case CMARK_NODE_STRONG:
+    symbol = sym_strong;
+    break;
+  case CMARK_NODE_LINK:
+    symbol = sym_link;
+    break;
+  case CMARK_NODE_IMAGE:
+    symbol = sym_image;
+    break;
+  default:
+    rb_raise(rb_mNodeError, &quot;invalid node type %d&quot;, node_type);
+  }
 
-        return symbol;
+  return symbol;
 }</pre>
           </div>
           
@@ -1876,13 +1930,11 @@ rb_node_get_type(VALUE self)
 
           
           <div class="method-source-code" id="type_string-source">
-            <pre>static VALUE
-rb_node_get_type_string(VALUE self)
-{
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_type_string(VALUE self) {
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        return rb_str_new2(cmark_node_get_type_string(node));
+  return rb_str_new2(cmark_node_get_type_string(node));
 }</pre>
           </div>
           
@@ -1916,19 +1968,17 @@ URL can&#39;t be retrieved.</p>
 
           
           <div class="method-source-code" id="url-source">
-            <pre>static VALUE
-rb_node_get_url(VALUE self)
-{
-        const char *text;
-        cmark_node *node;
-        Data_Get_Struct(self, cmark_node, node);
+            <pre>static VALUE rb_node_get_url(VALUE self) {
+  const char *text;
+  cmark_node *node;
+  Data_Get_Struct(self, cmark_node, node);
 
-        text = cmark_node_get_url(node);
-        if (text == NULL) {
-                rb_raise(rb_mNodeError, &quot;could not get url&quot;);
-        }
+  text = cmark_node_get_url(node);
+  if (text == NULL) {
+    rb_raise(rb_mNodeError, &quot;could not get url&quot;);
+  }
 
-        return rb_str_new2(text);
+  return rb_str_new2(text);
 }</pre>
           </div>
           
@@ -1964,21 +2014,19 @@ set.</p>
 
           
           <div class="method-source-code" id="url-3D-source">
-            <pre>static VALUE
-rb_node_set_url(VALUE self, VALUE url)
-{
-        cmark_node *node;
-        char *text;
-        Check_Type(url, T_STRING);
+            <pre>static VALUE rb_node_set_url(VALUE self, VALUE url) {
+  cmark_node *node;
+  char *text;
+  Check_Type(url, T_STRING);
 
-        Data_Get_Struct(self, cmark_node, node);
-        text = StringValueCStr(url);
+  Data_Get_Struct(self, cmark_node, node);
+  text = StringValueCStr(url);
 
-        if (!cmark_node_set_url(node, text)) {
-                rb_raise(rb_mNodeError, &quot;could not set url&quot;);
-        }
+  if (!cmark_node_set_url(node, text)) {
+    rb_raise(rb_mNodeError, &quot;could not set url&quot;);
+  }
 
-        return Qnil;
+  return Qnil;
 }</pre>
           </div>
           
@@ -2012,11 +2060,13 @@ recursively.</p>
 
           
           <div class="method-source-code" id="walk-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 39</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">walk</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">blk</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 8</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">walk</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">enum_for</span>(<span class="ruby-value">:walk</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">block_given?</span>
+
   <span class="ruby-keyword">yield</span> <span class="ruby-keyword">self</span>
-  <span class="ruby-identifier">each_child</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">child</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">child</span>.<span class="ruby-identifier">walk</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">blk</span>)
+  <span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">child</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">child</span>.<span class="ruby-identifier">walk</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>

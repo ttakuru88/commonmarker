@@ -483,7 +483,7 @@
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">out</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
   <span class="ruby-identifier">args</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">arg</span><span class="ruby-operator">|</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">arg</span> <span class="ruby-operator">==</span> <span class="ruby-value">:children</span>
-      <span class="ruby-ivar">@node</span>.<span class="ruby-identifier">each_child</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">child</span><span class="ruby-operator">|</span> <span class="ruby-identifier">out</span>(<span class="ruby-identifier">child</span>) }
+      <span class="ruby-ivar">@node</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">child</span><span class="ruby-operator">|</span> <span class="ruby-identifier">out</span>(<span class="ruby-identifier">child</span>) }
     <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
       <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">render</span>(<span class="ruby-identifier">x</span>) }
     <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Node</span>)
@@ -598,7 +598,7 @@
     <span class="ruby-identifier">document</span>(<span class="ruby-identifier">node</span>)
     <span class="ruby-keyword">return</span> <span class="ruby-ivar">@stream</span>.<span class="ruby-identifier">string</span>
   <span class="ruby-keyword">elsif</span> <span class="ruby-ivar">@in_plain</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">!=</span> <span class="ruby-value">:text</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">!=</span> <span class="ruby-value">:softbreak</span>
-    <span class="ruby-identifier">node</span>.<span class="ruby-identifier">each_child</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">child</span><span class="ruby-operator">|</span> <span class="ruby-identifier">render</span>(<span class="ruby-identifier">child</span>) }
+    <span class="ruby-identifier">node</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">child</span><span class="ruby-operator">|</span> <span class="ruby-identifier">render</span>(<span class="ruby-identifier">child</span>) }
   <span class="ruby-keyword">else</span>
     <span class="ruby-keyword">begin</span>
       <span class="ruby-identifier">send</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">type</span>, <span class="ruby-identifier">node</span>)

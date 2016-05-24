@@ -39,6 +39,9 @@
       <li><a href="README_md.html#label-Example%3A+walking+the+AST">Example: walking the AST</a>
       <li><a href="README_md.html#label-Creating+a+custom+renderer">Creating a custom renderer</a>
       <li><a href="README_md.html#label-Options">Options</a>
+      <li><a href="README_md.html#label-Parse+options">Parse options</a>
+      <li><a href="README_md.html#label-Render+options">Render options</a>
+      <li><a href="README_md.html#label-Passing+options">Passing options</a>
       <li><a href="README_md.html#label-Hacking">Hacking</a>
       <li><a href="README_md.html#label-Benchmarks">Benchmarks</a>
     </ul>
@@ -48,8 +51,14 @@
 
 <h2 id="classes">Classes and Modules</h2>
 <ul>
-  <li class="class">
+  <li class="module">
     <a href="CommonMarker/Config.html">CommonMarker::Config</a>
+  </li>
+  <li class="class">
+    <a href="CommonMarker/Config/Parse.html">CommonMarker::Config::Parse</a>
+  </li>
+  <li class="class">
+    <a href="CommonMarker/Config/Render.html">CommonMarker::Config::Render</a>
   </li>
   <li class="class">
     <a href="CommonMarker/HtmlRenderer.html">CommonMarker::HtmlRenderer</a>
@@ -89,14 +98,14 @@
     <span class="container">CommonMarker::Node</span>
 
   <li class="method">
-    <a href="CommonMarker/Renderer.html#method-c-new">::new</a>
-    &mdash;
-    <span class="container">CommonMarker::Renderer</span>
-
-  <li class="method">
     <a href="CommonMarker/Node.html#method-c-new">::new</a>
     &mdash;
     <span class="container">CommonMarker::Node</span>
+
+  <li class="method">
+    <a href="CommonMarker/Renderer.html#method-c-new">::new</a>
+    &mdash;
+    <span class="container">CommonMarker::Renderer</span>
 
   <li class="method">
     <a href="CommonMarker/Node.html#method-c-parse_document">::parse_document</a>
@@ -182,6 +191,11 @@
     <a href="CommonMarker/Renderer.html#method-i-document">#document</a>
     &mdash;
     <span class="container">CommonMarker::Renderer</span>
+
+  <li class="method">
+    <a href="CommonMarker/Node.html#method-i-each">#each</a>
+    &mdash;
+    <span class="container">CommonMarker::Node</span>
 
   <li class="method">
     <a href="CommonMarker/Node.html#method-i-each_child">#each_child</a>
@@ -359,19 +373,24 @@
     <span class="container">CommonMarker::Renderer</span>
 
   <li class="method">
-    <a href="CommonMarker/Renderer.html#method-i-render">#render</a>
-    &mdash;
-    <span class="container">CommonMarker::Renderer</span>
-
-  <li class="method">
     <a href="CommonMarker/HtmlRenderer.html#method-i-render">#render</a>
     &mdash;
     <span class="container">CommonMarker::HtmlRenderer</span>
 
   <li class="method">
+    <a href="CommonMarker/Renderer.html#method-i-render">#render</a>
+    &mdash;
+    <span class="container">CommonMarker::Renderer</span>
+
+  <li class="method">
     <a href="CommonMarker/HtmlRenderer.html#method-i-softbreak">#softbreak</a>
     &mdash;
     <span class="container">CommonMarker::HtmlRenderer</span>
+
+  <li class="method">
+    <a href="CommonMarker/Node.html#method-i-sourcepos">#sourcepos</a>
+    &mdash;
+    <span class="container">CommonMarker::Node</span>
 
   <li class="method">
     <a href="CommonMarker/Node.html#method-i-string_content">#string_content</a>
