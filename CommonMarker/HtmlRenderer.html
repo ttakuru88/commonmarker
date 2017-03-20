@@ -6,19 +6,17 @@
 
 <title>class CommonMarker::HtmlRenderer - RDoc Documentation</title>
 
-<link href="../fonts.css" rel="stylesheet">
-<link href="../rdoc.css" rel="stylesheet">
-
 <script type="text/javascript">
   var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
 </script>
 
 <script src="../js/jquery.js"></script>
-<script src="../js/navigation.js"></script>
-<script src="../js/search_index.js"></script>
-<script src="../js/search.js"></script>
-<script src="../js/searcher.js"></script>
 <script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
 
 
 <body id="top" role="document" class="class">
@@ -81,10 +79,6 @@
     
     <li ><a href="#method-i-emph">#emph</a>
     
-    <li ><a href="#method-i-escape_href">#escape_href</a>
-    
-    <li ><a href="#method-i-escape_html">#escape_html</a>
-    
     <li ><a href="#method-i-header">#header</a>
     
     <li ><a href="#method-i-hrule">#hrule</a>
@@ -109,7 +103,17 @@
     
     <li ><a href="#method-i-softbreak">#softbreak</a>
     
+    <li ><a href="#method-i-strikethrough">#strikethrough</a>
+    
     <li ><a href="#method-i-strong">#strong</a>
+    
+    <li ><a href="#method-i-table">#table</a>
+    
+    <li ><a href="#method-i-table_cell">#table_cell</a>
+    
+    <li ><a href="#method-i-table_header">#table_header</a>
+    
+    <li ><a href="#method-i-table_row">#table_row</a>
     
     <li ><a href="#method-i-text">#text</a>
     
@@ -151,7 +155,7 @@
         
         <div class="method-heading">
           <span class="method-name">blockquote</span><span
-            class="method-args">(node)</span>
+            class="method-args">(_)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -166,8 +170,8 @@
 
           
           <div class="method-source-code" id="blockquote-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 55</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">blockquote</span>(<span class="ruby-identifier">node</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 58</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">blockquote</span>(<span class="ruby-identifier">_</span>)
   <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
     <span class="ruby-identifier">container</span>(<span class="ruby-string">&quot;&lt;blockquote&gt;\n&quot;</span>, <span class="ruby-string">&#39;&lt;/blockquote&gt;&#39;</span>) <span class="ruby-keyword">do</span>
       <span class="ruby-identifier">out</span>(<span class="ruby-value">:children</span>)
@@ -203,7 +207,7 @@
 
           
           <div class="method-source-code" id="code-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 123</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 126</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">code</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;code&gt;&#39;</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-identifier">escape_html</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">string_content</span>))
@@ -238,14 +242,14 @@
 
           
           <div class="method-source-code" id="code_block-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 69</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 72</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">code_block</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;pre&gt;&lt;code&#39;</span>)
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">fence_info</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">fence_info</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">fence_info</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">node</span>.<span class="ruby-identifier">fence_info</span>.<span class="ruby-identifier">empty?</span>
       <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39; class=&quot;language-&#39;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">fence_info</span>.<span class="ruby-identifier">split</span>(<span class="ruby-regexp">/\s+/</span>)[<span class="ruby-value">0</span>], <span class="ruby-string">&#39;&quot;&gt;&#39;</span>)
     <span class="ruby-keyword">else</span>
-      <span class="ruby-identifier">out</span>(<span class="ruby-string">&quot;&gt;&quot;</span>)
+      <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&gt;&#39;</span>)
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-identifier">escape_html</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">string_content</span>))
     <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;/code&gt;&lt;/pre&gt;&#39;</span>)
@@ -265,7 +269,7 @@
         
         <div class="method-heading">
           <span class="method-name">emph</span><span
-            class="method-args">(node)</span>
+            class="method-args">(_)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -280,75 +284,9 @@
 
           
           <div class="method-source-code" id="emph-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 92</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">emph</span>(<span class="ruby-identifier">node</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 95</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">emph</span>(<span class="ruby-identifier">_</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;em&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&lt;/em&gt;&#39;</span>)
-<span class="ruby-keyword">end</span></pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
-      <div id="method-i-escape_href" class="method-detail ">
-        
-        <div class="method-heading">
-          <span class="method-name">escape_href</span><span
-            class="method-args">(str)</span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-          <div class="method-source-code" id="escape_href-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 138</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">escape_href</span>(<span class="ruby-identifier">str</span>)
-  <span class="ruby-constant">CommonMarker</span><span class="ruby-operator">::</span><span class="ruby-constant">Node</span>.<span class="ruby-identifier">html_escape_href</span>(<span class="ruby-identifier">str</span>)
-<span class="ruby-keyword">end</span></pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
-      <div id="method-i-escape_html" class="method-detail ">
-        
-        <div class="method-heading">
-          <span class="method-name">escape_html</span><span
-            class="method-args">(str)</span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-          <div class="method-source-code" id="escape_html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 142</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">escape_html</span>(<span class="ruby-identifier">str</span>)
-  <span class="ruby-constant">CommonMarker</span><span class="ruby-operator">::</span><span class="ruby-constant">Node</span>.<span class="ruby-identifier">html_escape_html</span>(<span class="ruby-identifier">str</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -383,7 +321,7 @@
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">header</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;h&#39;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">header_level</span>, <span class="ruby-string">&#39;&gt;&#39;</span>, <span class="ruby-value">:children</span>,
-             <span class="ruby-string">&#39;&lt;/h&#39;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">header_level</span>, <span class="ruby-string">&quot;&gt;&quot;</span>)
+        <span class="ruby-string">&#39;&lt;/h&#39;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">header_level</span>, <span class="ruby-string">&#39;&gt;&#39;</span>)
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -400,7 +338,7 @@
         
         <div class="method-heading">
           <span class="method-name">hrule</span><span
-            class="method-args">(node)</span>
+            class="method-args">(_)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -415,8 +353,8 @@
 
           
           <div class="method-source-code" id="hrule-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 63</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">hrule</span>(<span class="ruby-identifier">node</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 66</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">hrule</span>(<span class="ruby-identifier">_</span>)
   <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;hr /&gt;&#39;</span>)
   <span class="ruby-keyword">end</span>
@@ -450,7 +388,7 @@
 
           
           <div class="method-source-code" id="html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 82</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 85</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">html</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">string_content</span>)
@@ -485,13 +423,13 @@
 
           
           <div class="method-source-code" id="image-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 108</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 111</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">image</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;img src=&quot;&#39;</span>, <span class="ruby-identifier">escape_href</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">url</span>), <span class="ruby-string">&#39;&quot;&#39;</span>)
   <span class="ruby-identifier">plain</span> <span class="ruby-keyword">do</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39; alt=&quot;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&quot;&#39;</span>)
   <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span>.<span class="ruby-identifier">empty?</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39; title=&quot;&#39;</span>, <span class="ruby-identifier">escape_html</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span>), <span class="ruby-string">&#39;&quot;&#39;</span>)
   <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39; /&gt;&#39;</span>)
@@ -525,7 +463,7 @@
 
           
           <div class="method-source-code" id="inline_html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 88</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 91</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">inline_html</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">string_content</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -558,7 +496,7 @@
 
           
           <div class="method-source-code" id="linebreak-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 129</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 132</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">linebreak</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;br /&gt;&#39;</span>)
   <span class="ruby-identifier">softbreak</span>(<span class="ruby-identifier">node</span>)
@@ -592,10 +530,10 @@
 
           
           <div class="method-source-code" id="link-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 100</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 103</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">link</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;a href=&quot;&#39;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">url</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">escape_href</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">url</span>), <span class="ruby-string">&#39;&quot;&#39;</span>)
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span>.<span class="ruby-identifier">empty?</span>
     <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39; title=&quot;&#39;</span>, <span class="ruby-identifier">escape_html</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">title</span>), <span class="ruby-string">&#39;&quot;&#39;</span>)
   <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&lt;/a&gt;&#39;</span>)
@@ -640,8 +578,11 @@
         <span class="ruby-identifier">out</span>(<span class="ruby-value">:children</span>)
       <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">else</span>
-      <span class="ruby-identifier">start</span> = <span class="ruby-identifier">node</span>.<span class="ruby-identifier">list_start</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span> <span class="ruby-operator">?</span> <span class="ruby-string">&quot;&lt;ol&gt;\n&quot;</span> <span class="ruby-operator">:</span>
-              (<span class="ruby-string">&#39;&lt;ol start=&quot;&#39;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">list_start</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-string">&quot;\&quot;&gt;\n&quot;</span>)
+      <span class="ruby-identifier">start</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">node</span>.<span class="ruby-identifier">list_start</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+                <span class="ruby-string">&quot;&lt;ol&gt;\n&quot;</span>
+              <span class="ruby-keyword">else</span>
+                <span class="ruby-node">&quot;&lt;ol start=\&quot;#{node.list_start}\&quot;&gt;\n&quot;</span>
+              <span class="ruby-keyword">end</span>
       <span class="ruby-identifier">container</span>(<span class="ruby-identifier">start</span>, <span class="ruby-string">&#39;&lt;/ol&gt;&#39;</span>) <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">out</span>(<span class="ruby-value">:children</span>)
       <span class="ruby-keyword">end</span>
@@ -664,7 +605,7 @@
         
         <div class="method-heading">
           <span class="method-name">list_item</span><span
-            class="method-args">(node)</span>
+            class="method-args">(_)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -679,8 +620,8 @@
 
           
           <div class="method-source-code" id="list_item-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 47</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">list_item</span>(<span class="ruby-identifier">node</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 50</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">list_item</span>(<span class="ruby-identifier">_</span>)
   <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
     <span class="ruby-identifier">container</span>(<span class="ruby-string">&#39;&lt;li&gt;&#39;</span>, <span class="ruby-string">&#39;&lt;/li&gt;&#39;</span>) <span class="ruby-keyword">do</span>
       <span class="ruby-identifier">out</span>(<span class="ruby-value">:children</span>)
@@ -780,7 +721,7 @@
         
         <div class="method-heading">
           <span class="method-name">softbreak</span><span
-            class="method-args">(node)</span>
+            class="method-args">(_)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -795,9 +736,42 @@
 
           
           <div class="method-source-code" id="softbreak-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 134</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">softbreak</span>(<span class="ruby-identifier">node</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 137</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">softbreak</span>(<span class="ruby-identifier">_</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&quot;\n&quot;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-strikethrough" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">strikethrough</span><span
+            class="method-args">(_)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="strikethrough-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 159</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">strikethrough</span>(<span class="ruby-identifier">_</span>)
+  <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;strike&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&lt;/strike&gt;&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -813,7 +787,7 @@
         
         <div class="method-heading">
           <span class="method-name">strong</span><span
-            class="method-args">(node)</span>
+            class="method-args">(_)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -828,9 +802,143 @@
 
           
           <div class="method-source-code" id="strong-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 96</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">strong</span>(<span class="ruby-identifier">node</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 99</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">strong</span>(<span class="ruby-identifier">_</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;strong&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&lt;/strong&gt;&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-table" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">table</span><span
+            class="method-args">(_)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="table-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 141</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">table</span>(<span class="ruby-identifier">_</span>)
+  <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;table&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&lt;/tbody&gt;&lt;/table&gt;&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-table_cell" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">table_cell</span><span
+            class="method-args">(_)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="table_cell-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 155</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">table_cell</span>(<span class="ruby-identifier">_</span>)
+  <span class="ruby-identifier">out</span>(<span class="ruby-ivar">@in_header</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;&lt;th&gt;&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-string">&#39;&lt;td&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-ivar">@in_header</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;&lt;/th&gt;&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-string">&#39;&lt;/td&gt;&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-table_header" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">table_header</span><span
+            class="method-args">(_)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="table_header-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 145</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">table_header</span>(<span class="ruby-identifier">_</span>)
+  <span class="ruby-ivar">@in_header</span> = <span class="ruby-keyword">true</span>
+  <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;thead&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&lt;/thead&gt;&lt;tbody&gt;&#39;</span>)
+  <span class="ruby-ivar">@in_header</span> = <span class="ruby-keyword">false</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-table_row" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">table_row</span><span
+            class="method-args">(_)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="table_row-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 151</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">table_row</span>(<span class="ruby-identifier">_</span>)
+  <span class="ruby-identifier">out</span>(<span class="ruby-string">&#39;&lt;tr&gt;&#39;</span>, <span class="ruby-value">:children</span>, <span class="ruby-string">&#39;&lt;/tr&gt;&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -861,7 +969,7 @@
 
           
           <div class="method-source-code" id="text-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 119</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/renderer/html_renderer.rb, line 122</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">text</span>(<span class="ruby-identifier">node</span>)
   <span class="ruby-identifier">out</span>(<span class="ruby-identifier">escape_html</span>(<span class="ruby-identifier">node</span>.<span class="ruby-identifier">string_content</span>))
 <span class="ruby-keyword">end</span></pre>
@@ -883,7 +991,7 @@
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="http://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="http://rdoc.rubyforge.org">RDoc</a> 4.1.2.
-  <p>Based on <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+  <p>Generated by <a href="https://rdoc.github.io/rdoc">RDoc</a> 5.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

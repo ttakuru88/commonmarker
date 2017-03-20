@@ -6,19 +6,17 @@
 
 <title>class CommonMarker::Node - RDoc Documentation</title>
 
-<link href="../fonts.css" rel="stylesheet">
-<link href="../rdoc.css" rel="stylesheet">
-
 <script type="text/javascript">
   var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
 </script>
 
 <script src="../js/jquery.js"></script>
-<script src="../js/navigation.js"></script>
-<script src="../js/search_index.js"></script>
-<script src="../js/search.js"></script>
-<script src="../js/searcher.js"></script>
 <script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
 
 
 <body id="top" role="document" class="class">
@@ -84,15 +82,13 @@
 
   <ul class="link-list" role="directory">
     
-    <li ><a href="#method-c-html_escape_href">::html_escape_href</a>
-    
-    <li ><a href="#method-c-html_escape_html">::html_escape_html</a>
-    
     <li ><a href="#method-c-markdown_to_html">::markdown_to_html</a>
     
     <li ><a href="#method-c-new">::new</a>
     
     <li ><a href="#method-c-parse_document">::parse_document</a>
+    
+    <li ><a href="#method-i-_render_commonmark">#_render_commonmark</a>
     
     <li ><a href="#method-i-_render_html">#_render_html</a>
     
@@ -113,6 +109,10 @@
     <li ><a href="#method-i-header_level">#header_level</a>
     
     <li ><a href="#method-i-header_level-3D">#header_level=</a>
+    
+    <li ><a href="#method-i-html_escape_href">#html_escape_href</a>
+    
+    <li ><a href="#method-i-html_escape_html">#html_escape_html</a>
     
     <li ><a href="#method-i-insert_after">#insert_after</a>
     
@@ -149,6 +149,8 @@
     <li ><a href="#method-i-title">#title</a>
     
     <li ><a href="#method-i-title-3D">#title=</a>
+    
+    <li ><a href="#method-i-to_commonmark">#to_commonmark</a>
     
     <li ><a href="#method-i-to_html">#to_html</a>
     
@@ -196,97 +198,11 @@
        </header>
 
     
-      <div id="method-c-html_escape_href" class="method-detail ">
-        
-        <div class="method-heading">
-          <span class="method-name">html_escape_href</span><span
-            class="method-args">(p1)</span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          <p>Internal: Escapes href URLs safely.</p>
-          
-          
-
-          
-          <div class="method-source-code" id="html_escape_href-source">
-            <pre>static VALUE rb_html_escape_href(VALUE self, VALUE rb_text) {
-  char *result;
-  cmark_strbuf buf = GH_BUF_INIT;
-
-  Check_Type(rb_text, T_STRING);
-
-  if (houdini_escape_href(&amp;buf, (const uint8_t *)RSTRING_PTR(rb_text),
-                          RSTRING_LEN(rb_text))) {
-    result = (char *)cmark_strbuf_detach(&amp;buf);
-    return rb_str_new2(result);
-  }
-
-  return rb_text;
-}</pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
-      <div id="method-c-html_escape_html" class="method-detail ">
-        
-        <div class="method-heading">
-          <span class="method-name">html_escape_html</span><span
-            class="method-args">(p1)</span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          <p>Internal: Escapes HTML content safely.</p>
-          
-          
-
-          
-          <div class="method-source-code" id="html_escape_html-source">
-            <pre>static VALUE rb_html_escape_html(VALUE self, VALUE rb_text) {
-  char *result;
-  cmark_strbuf buf = GH_BUF_INIT;
-
-  Check_Type(rb_text, T_STRING);
-
-  if (houdini_escape_html0(&amp;buf, (const uint8_t *)RSTRING_PTR(rb_text),
-                           RSTRING_LEN(rb_text), 0)) {
-    result = (char *)cmark_strbuf_detach(&amp;buf);
-    return rb_str_new2(result);
-  }
-
-  return rb_text;
-}</pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
       <div id="method-c-markdown_to_html" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">markdown_to_html</span><span
-            class="method-args">(p1, p2)</span>
+            class="method-args">(p1, p2, p3)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -301,21 +217,32 @@
 
           
           <div class="method-source-code" id="markdown_to_html-source">
-            <pre>static VALUE rb_markdown_to_html(VALUE self, VALUE rb_text, VALUE rb_options) {
-  char *str;
-  int len, options;
-
+            <pre>static VALUE rb_markdown_to_html(VALUE self, VALUE rb_text, VALUE rb_options, VALUE rb_extensions) {
+  char *str, *html;
+  int len;
+  cmark_parser *parser;
+  cmark_node *doc;
   Check_Type(rb_text, T_STRING);
   Check_Type(rb_options, T_FIXNUM);
 
+  parser = prepare_parser(rb_options, rb_extensions, cmark_get_arena_mem_allocator());
+
   str = (char *)RSTRING_PTR(rb_text);
   len = RSTRING_LEN(rb_text);
-  options = FIX2INT(rb_options);
 
-  char *html = cmark_markdown_to_html(str, len, options);
+  cmark_parser_feed(parser, str, len);
+  doc = cmark_parser_finish(parser);
+  if (doc == NULL) {
+    cmark_arena_reset();
+    rb_raise(rb_mNodeError, &quot;error parsing document&quot;);
+  }
+
+  cmark_mem *default_mem = cmark_get_default_mem_allocator();
+  html = cmark_render_html_with_mem(doc, FIX2INT(rb_options), parser-&gt;syntax_extensions, default_mem);
+  cmark_arena_reset();
+
   VALUE ruby_html = rb_str_new2(html);
-
-  free(html);
+  default_mem-&gt;free(html);
 
   return ruby_html;
 }</pre>
@@ -454,7 +381,7 @@ following:</p>
         
         <div class="method-heading">
           <span class="method-name">parse_document</span><span
-            class="method-args">(p1, p2, p3)</span>
+            class="method-args">(p1, p2, p3, p4)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -470,22 +397,27 @@ following:</p>
           
           <div class="method-source-code" id="parse_document-source">
             <pre>static VALUE rb_parse_document(VALUE self, VALUE rb_text, VALUE rb_len,
-                               VALUE rb_options) {
+                               VALUE rb_options, VALUE rb_extensions) {
   char *text;
   int len, options;
+  cmark_parser *parser;
   cmark_node *doc;
   Check_Type(rb_text, T_STRING);
   Check_Type(rb_len, T_FIXNUM);
   Check_Type(rb_options, T_FIXNUM);
 
+  parser = prepare_parser(rb_options, rb_extensions, cmark_get_default_mem_allocator());
+
   text = (char *)RSTRING_PTR(rb_text);
   len = FIX2INT(rb_len);
   options = FIX2INT(rb_options);
 
-  doc = cmark_parse_document(text, len, options);
+  cmark_parser_feed(parser, text, len);
+  doc = cmark_parser_finish(parser);
   if (doc == NULL) {
     rb_raise(rb_mNodeError, &quot;error parsing document&quot;);
   }
+  cmark_parser_free(parser);
 
   return rb_node_to_value(doc);
 }</pre>
@@ -507,11 +439,56 @@ following:</p>
        </header>
 
     
+      <div id="method-i-_render_commonmark" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">_render_commonmark</span><span
+            class="method-args">(p1)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Internal: Convert the node to a CommonMark string.</p>
+
+<p>Returns a {String}.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="_render_commonmark-source">
+            <pre>static VALUE rb_render_commonmark(VALUE n, VALUE rb_options) {
+  int options;
+  cmark_node *node;
+  Check_Type(rb_options, T_FIXNUM);
+
+  options = FIX2INT(rb_options);
+  Data_Get_Struct(n, cmark_node, node);
+
+  char *cmark = cmark_render_commonmark(node, options, 120);
+  VALUE ruby_cmark = rb_str_new2(cmark);
+  free(cmark);
+
+  return ruby_cmark;
+}</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-_render_html" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">_render_html</span><span
-            class="method-args">(p1)</span>
+            class="method-args">(p1, p2)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -528,18 +505,44 @@ following:</p>
 
           
           <div class="method-source-code" id="_render_html-source">
-            <pre>static VALUE rb_render_html(VALUE n, VALUE rb_options) {
-  int options;
+            <pre>static VALUE rb_render_html(VALUE n, VALUE rb_options, VALUE rb_extensions) {
+  int options, extensions_len;
+  VALUE rb_ext_name;
+  int i;
   cmark_node *node;
+  cmark_llist *extensions = NULL;
+  cmark_mem *mem = cmark_get_default_mem_allocator();
   Check_Type(rb_options, T_FIXNUM);
+  Check_Type(rb_extensions, T_ARRAY);
 
   options = FIX2INT(rb_options);
+  extensions_len = RARRAY_LEN(rb_extensions);
 
   Data_Get_Struct(n, cmark_node, node);
 
-  char *html = cmark_render_html(node, options);
+  for (i = 0; i &lt; extensions_len; ++i) {
+    rb_ext_name = RARRAY_PTR(rb_extensions)[i];
+
+    if (!SYMBOL_P(rb_ext_name)) {
+      cmark_llist_free(mem, extensions);
+      rb_raise(rb_eTypeError, &quot;extension names should be Symbols; got a %&quot;PRIsVALUE&quot;&quot;, rb_obj_class(rb_ext_name));
+    }
+
+    cmark_syntax_extension *syntax_extension =
+      cmark_find_syntax_extension(rb_id2name(SYM2ID(rb_ext_name)));
+
+    if (!syntax_extension) {
+      cmark_llist_free(mem, extensions);
+      rb_raise(rb_eArgError, &quot;extension %s not found\n&quot;, rb_id2name(SYM2ID(rb_ext_name)));
+    }
+
+    extensions = cmark_llist_append(mem, extensions, syntax_extension);
+  }
+
+  char *html = cmark_render_html(node, options, extensions);
   VALUE ruby_html = rb_str_new2(html);
 
+  cmark_llist_free(mem, extensions);
   free(html);
 
   return ruby_html;
@@ -661,7 +664,7 @@ siblings appropriately).</p>
 
           
           <div class="method-source-code" id="each-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 28</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 39</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-keyword">return</span> <span class="ruby-identifier">enum_for</span>(<span class="ruby-value">:each</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">block_given?</span>
 
@@ -701,7 +704,7 @@ siblings appropriately).</p>
 
           
           <div class="method-source-code" id="each_child-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 40</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 51</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">each_child</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">warn</span> <span class="ruby-string">&#39;[DEPRECATION] `each_child` is deprecated.  Please use `each` instead.&#39;</span>
   <span class="ruby-identifier">each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -932,6 +935,100 @@ can&#39;t be set.</p>
   }
 
   return Qnil;
+}</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-html_escape_href" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">html_escape_href</span><span
+            class="method-args">(p1)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Internal: Escapes href URLs safely.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="html_escape_href-source">
+            <pre>static VALUE rb_html_escape_href(VALUE self, VALUE rb_text) {
+  char *result;
+  cmark_node *node;
+  Check_Type(rb_text, T_STRING);
+
+  Data_Get_Struct(self, cmark_node, node);
+
+  cmark_mem *mem = cmark_node_mem(node);
+  cmark_strbuf buf = CMARK_BUF_INIT(mem);
+
+  if (houdini_escape_href(&amp;buf, (const uint8_t *)RSTRING_PTR(rb_text),
+                          RSTRING_LEN(rb_text))) {
+    result = (char *)cmark_strbuf_detach(&amp;buf);
+    return rb_str_new2(result);
+  }
+
+  return rb_text;
+}</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-html_escape_html" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">html_escape_html</span><span
+            class="method-args">(p1)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Internal: Escapes HTML content safely.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="html_escape_html-source">
+            <pre>static VALUE rb_html_escape_html(VALUE self, VALUE rb_text) {
+  char *result;
+  cmark_node *node;
+  Check_Type(rb_text, T_STRING);
+
+  Data_Get_Struct(self, cmark_node, node);
+
+  cmark_mem *mem = cmark_node_mem(node);
+  cmark_strbuf buf = CMARK_BUF_INIT(mem);
+
+  if (houdini_escape_html0(&amp;buf, (const uint8_t *)RSTRING_PTR(rb_text),
+                           RSTRING_LEN(rb_text), 0)) {
+    result = (char *)cmark_strbuf_detach(&amp;buf);
+    return rb_str_new2(result);
+  }
+
+  return rb_text;
 }</pre>
           </div>
           
@@ -1617,7 +1714,7 @@ if the node can&#39;t be inserted.</p>
     rb_raise(rb_mNodeError, &quot;could not get string content&quot;);
   }
 
-  return rb_str_new2(text);
+  return encode_utf8_string(text);
 }</pre>
           </div>
           
@@ -1769,11 +1866,49 @@ set.</p>
       </div>
 
     
+      <div id="method-i-to_commonmark" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_commonmark</span><span
+            class="method-args">(options = :DEFAULT)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Public: Convert the node to a CommonMark string.</p>
+
+<p>options - A {Symbol} or {Array of Symbol}s indicating the render options</p>
+
+<p>Returns a {String}.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_commonmark-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 33</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_commonmark</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>)
+  <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
+  <span class="ruby-identifier">_render_commonmark</span>(<span class="ruby-identifier">opts</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-to_html" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">to_html</span><span
-            class="method-args">(options = :default)</span>
+            class="method-args">(options = :DEFAULT, extensions = [])</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -1784,7 +1919,8 @@ set.</p>
           
           <p>Public: Convert the node to an HTML string.</p>
 
-<p>options - A {Symbol} or {Array of Symbol}s indicating the render options</p>
+<p>options - A {Symbol} or {Array of Symbol}s indicating the render options
+extensions - An {Array of Symbol}s indicating the extensions to use</p>
 
 <p>Returns a {String}.</p>
           
@@ -1792,10 +1928,10 @@ set.</p>
 
           
           <div class="method-source-code" id="to_html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 22</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_html</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:default</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 23</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_html</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>, <span class="ruby-identifier">extensions</span> = [])
   <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
-  <span class="ruby-identifier">_render_html</span>(<span class="ruby-identifier">opts</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
+  <span class="ruby-identifier">_render_html</span>(<span class="ruby-identifier">opts</span>, <span class="ruby-identifier">extensions</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1832,6 +1968,7 @@ set.</p>
   int node_type;
   cmark_node *node;
   VALUE symbol;
+  const char *s;
 
   Data_Get_Struct(self, cmark_node, node);
 
@@ -1894,6 +2031,10 @@ set.</p>
     symbol = sym_image;
     break;
   default:
+    if (node-&gt;extension) {
+      s = node-&gt;extension-&gt;get_type_string_func(node-&gt;extension, node);
+      return ID2SYM(rb_intern(s));
+    }
     rb_raise(rb_mNodeError, &quot;invalid node type %d&quot;, node_type);
   }
 
@@ -2087,7 +2228,7 @@ recursively.</p>
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="http://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="http://rdoc.rubyforge.org">RDoc</a> 4.1.2.
-  <p>Based on <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+  <p>Generated by <a href="https://rdoc.github.io/rdoc">RDoc</a> 5.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

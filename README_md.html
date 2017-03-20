@@ -6,19 +6,17 @@
 
 <title>README - RDoc Documentation</title>
 
-<link href="./fonts.css" rel="stylesheet">
-<link href="./rdoc.css" rel="stylesheet">
-
 <script type="text/javascript">
   var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
 </script>
 
 <script src="./js/jquery.js"></script>
-<script src="./js/navigation.js"></script>
-<script src="./js/search_index.js"></script>
-<script src="./js/search.js"></script>
-<script src="./js/searcher.js"></script>
 <script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
 
 
 <body id="top" role="document" class="file">
@@ -63,7 +61,7 @@
     <li><a href="#label-Usage">Usage</a>
     <li><a href="#label-Converting+to+HTML">Converting to HTML</a>
     <li><a href="#label-Generating+a+document">Generating a document</a>
-    <li><a href="#label-Example%3A+walking+the+AST">Example: walking the AST</a>
+    <li><a href="#label-Example-3A+walking+the+AST">Example: walking the AST</a>
     <li><a href="#label-Creating+a+custom+renderer">Creating a custom renderer</a>
     <li><a href="#label-Options">Options</a>
     <li><a href="#label-Parse+options">Parse options</a>
@@ -91,7 +89,7 @@
 
 <main role="main" aria-label="Page README.md">
 
-<h1 id="label-CommonMarker">CommonMarker<span><a href="#label-CommonMarker">&para;</a> <a href="#documentation">&uarr;</a></span></h1>
+<h1 id="label-CommonMarker"><a href="CommonMarker.html">CommonMarker</a><span><a href="#label-CommonMarker">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
 <p><a href="https://travis-ci.org/gjtorikian/commonmarker"><img
 src="https://travis-ci.org/gjtorikian/commonmarker.svg"></a> <a
@@ -102,11 +100,12 @@ src="https://badge.fury.io/rb/commonmarker.svg"></a></p>
 the reference parser for CommonMark. It passes all of the C tests, and is
 therefore spec-complete.</p>
 
-<h2 id="label-Installation">Installation<span><a href="#label-Installation">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+<h2 id="label-Installation">Installation<span><a href="#label-Installation">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
 <p>Add this line to your application&#39;s Gemfile:</p>
 
-<pre>gem &#39;commonmarker&#39;</pre>
+<pre class="ruby"><span class="ruby-identifier">gem</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
+</pre>
 
 <p>And then execute:</p>
 
@@ -116,21 +115,21 @@ therefore spec-complete.</p>
 
 <pre>$ gem install commonmarker</pre>
 
-<h2 id="label-Usage">Usage<span><a href="#label-Usage">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+<h2 id="label-Usage">Usage<span><a href="#label-Usage">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
-<h3 id="label-Converting+to+HTML">Converting to HTML<span><a href="#label-Converting+to+HTML">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+<h3 id="label-Converting+to+HTML">Converting to HTML<span><a href="#label-Converting+to+HTML">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p>Call <code>render_html</code> on a string to convert it to HTML:</p>
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
-<span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&#39;Hi *there*&#39;</span>, :<span class="ruby-identifier">default</span>)
+<span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&#39;Hi *there*&#39;</span>, :<span class="ruby-constant">DEFAULT</span>)
 <span class="ruby-comment"># &lt;p&gt;Hi &lt;em&gt;there&lt;/em&gt;&lt;/p&gt;\n</span>
 </pre>
 
 <p>The second argument is optional–<a href="#options">see below</a> for more
 information.</p>
 
-<h3 id="label-Generating+a+document">Generating a document<span><a href="#label-Generating+a+document">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+<h3 id="label-Generating+a+document">Generating a document<span><a href="#label-Generating+a+document">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p>You can also parse a string to receive a <code>Document</code> node. You
 can than print that node to HTML, iterate over the children, and other fun
@@ -138,7 +137,7 @@ node stuff. For example:</p>
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
 
-<span class="ruby-identifier">doc</span> = <span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-string">&#39;*Hello* world&#39;</span>, :<span class="ruby-identifier">default</span>)
+<span class="ruby-identifier">doc</span> = <span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-string">&#39;*Hello* world&#39;</span>, :<span class="ruby-constant">DEFAULT</span>)
 <span class="ruby-identifier">puts</span>(<span class="ruby-identifier">doc</span>.<span class="ruby-identifier">to_html</span>) <span class="ruby-comment"># &lt;p&gt;Hi &lt;em&gt;there&lt;/em&gt;&lt;/p&gt;\n</span>
 
 <span class="ruby-identifier">doc</span>.<span class="ruby-identifier">walk</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">node</span><span class="ruby-operator">|</span>
@@ -149,7 +148,7 @@ node stuff. For example:</p>
 <p>The second argument is optional–<a href="#options">see below</a> for more
 information.</p>
 
-<h4 id="label-Example%3A+walking+the+AST">Example: walking the AST<span><a href="#label-Example%3A+walking+the+AST">&para;</a> <a href="#documentation">&uarr;</a></span></h4>
+<h4 id="label-Example-3A+walking+the+AST">Example: walking the AST<span><a href="#label-Example-3A+walking+the+AST">&para;</a> <a href="#top">&uarr;</a></span></h4>
 
 <p>You can use <code>walk</code> or <code>each</code> to iterate over nodes:</p>
 <ul><li>
@@ -191,7 +190,7 @@ node&#39;s children.</p>
 <span class="ruby-keyword">end</span>
 </pre>
 
-<h3 id="label-Creating+a+custom+renderer">Creating a custom renderer<span><a href="#label-Creating+a+custom+renderer">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+<h3 id="label-Creating+a+custom+renderer">Creating a custom renderer<span><a href="#label-Creating+a+custom+renderer">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p>You can also derive a class from CommonMarker&#39;s
 <code>HtmlRenderer</code> class. This produces slower output, but is far
@@ -202,6 +201,7 @@ more customizable. For example:</p>
     <span class="ruby-keyword">super</span>
     <span class="ruby-ivar">@headerid</span> = <span class="ruby-value">1</span>
   <span class="ruby-keyword">end</span>
+
   <span class="ruby-keyword">def</span> <span class="ruby-identifier">header</span>(<span class="ruby-identifier">node</span>)
     <span class="ruby-identifier">block</span> <span class="ruby-keyword">do</span>
       <span class="ruby-identifier">out</span>(<span class="ruby-string">&quot;&lt;h&quot;</span>, <span class="ruby-identifier">node</span>.<span class="ruby-identifier">header_level</span>, <span class="ruby-string">&quot; id=\&quot;&quot;</span>, <span class="ruby-ivar">@headerid</span>, <span class="ruby-string">&quot;\&quot;&gt;&quot;</span>,
@@ -222,55 +222,57 @@ more customizable. For example:</p>
 <span class="ruby-keyword">end</span>
 </pre>
 
-<h2 id="label-Options">Options<span><a href="#label-Options">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+<h2 id="label-Options">Options<span><a href="#label-Options">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
-<p>CommonMarker accepts the same options that CMark does, as symbols. Note
-that there is a distinction in CMark for “parse” options and “render”
-options, which are represented in the tables below.</p>
+<p><a href="CommonMarker.html">CommonMarker</a> accepts the same options that
+CMark does, as symbols. Note that there is a distinction in CMark for
+“parse” options and “render” options, which are represented in the tables
+below.</p>
 
-<h3 id="label-Parse+options">Parse options<span><a href="#label-Parse+options">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+<h3 id="label-Parse+options">Parse options<span><a href="#label-Parse+options">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
-<p>| Name | Description | |——-|————–| | <code>:default</code> | The default
-parsing system.<br> | <code>:normalize</code> | Attempt to normalize the
-HTML. | <code>:smart</code> | Use smart punctuation (curly quotes, etc.). |
-<code>:validate_utf8</code> | Replace illegal sequences with the
+<p>| Name | Description | |——-|————–| | <code>:DEFAULT</code> | The default
+parsing system.<br> | <code>:NORMALIZE</code> | Attempt to normalize the
+HTML. | <code>:SMART</code> | Use smart punctuation (curly quotes, etc.). |
+<code>:VALIDATE_UTF8</code> | Replace illegal sequences with the
 replacement character <code>U+FFFD</code>.</p>
 
-<h3 id="label-Render+options">Render options<span><a href="#label-Render+options">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+<h3 id="label-Render+options">Render options<span><a href="#label-Render+options">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
-<p>| Name | Description | |——-|————–| | <code>:default</code> | The default
-rendering system. | <code>:sourcepos</code> | Include source position in
-rendered HTML. | <code>:hardbreaks</code> | Treat <code>\n</code> as
-hardbreaks (by adding <code>&lt;br/&gt;</code>). | <code>:safe</code> |
+<p>| Name | Description | |——-|————–| | <code>:DEFAULT</code> | The default
+rendering system. | <code>:SOURCEPOS</code> | Include source position in
+rendered HTML. | <code>:HARDBREAKS</code> | Treat <code>\n</code> as
+hardbreaks (by adding <code>&lt;br/&gt;</code>). | <code>:SAFE</code> |
 Suppress raw HTML and unsafe links.</p>
 
-<h3 id="label-Passing+options">Passing options<span><a href="#label-Passing+options">&para;</a> <a href="#documentation">&uarr;</a></span></h3>
+<h3 id="label-Passing+options">Passing options<span><a href="#label-Passing+options">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p>To apply a single option, pass it in as a symbol argument:</p>
 
-<pre class="ruby"><span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-string">&quot;\&quot;Hello,\&quot; said the spider.&quot;</span>, :<span class="ruby-identifier">smart</span>)
+<pre class="ruby"><span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-string">&quot;\&quot;Hello,\&quot; said the spider.&quot;</span>, :<span class="ruby-constant">SMART</span>)
 <span class="ruby-comment"># &lt;p&gt;“Hello,” said the spider.&lt;/p&gt;\n</span>
 </pre>
 
 <p>To have multiple options applied, pass in an array of symbols:</p>
 
-<pre class="ruby"><span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&quot;\&quot;&#39;Shelob&#39; is my name.\&quot;&quot;</span>, [:<span class="ruby-identifier">hardbreaks</span>, :<span class="ruby-identifier">sourcepos</span>])
+<pre class="ruby"><span class="ruby-constant">CommonMarker</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-string">&quot;\&quot;&#39;Shelob&#39; is my name.\&quot;&quot;</span>, [:<span class="ruby-constant">HARDBREAKS</span>, :<span class="ruby-constant">SOURCEPOS</span>])
 </pre>
 
 <p>For more information on these options, see <a
 href="http://git.io/vlQii">the CMark documentation</a>.</p>
 
-<h2 id="label-Hacking">Hacking<span><a href="#label-Hacking">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+<h2 id="label-Hacking">Hacking<span><a href="#label-Hacking">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
 <p>After cloning the repo:</p>
 
-<pre>script/bootstrap
-bundle exec rake compile</pre>
+<pre class="ruby"><span class="ruby-identifier">script</span><span class="ruby-operator">/</span><span class="ruby-identifier">bootstrap</span>
+<span class="ruby-identifier">bundle</span> <span class="ruby-identifier">exec</span> <span class="ruby-identifier">rake</span> <span class="ruby-identifier">compile</span>
+</pre>
 
 <p>If there were no errors, you&#39;re done! Otherwise, make sure to follow
 the CMark dependency instructions.</p>
 
-<h2 id="label-Benchmarks">Benchmarks<span><a href="#label-Benchmarks">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
+<h2 id="label-Benchmarks">Benchmarks<span><a href="#label-Benchmarks">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
 <p>Some rough benchmarks:</p>
 
@@ -294,7 +296,7 @@ kramdown
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="http://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="http://rdoc.rubyforge.org">RDoc</a> 4.1.2.
-  <p>Based on <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+  <p>Generated by <a href="https://rdoc.github.io/rdoc">RDoc</a> 5.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

@@ -6,19 +6,17 @@
 
 <title>module CommonMarker - RDoc Documentation</title>
 
-<link href="./fonts.css" rel="stylesheet">
-<link href="./rdoc.css" rel="stylesheet">
-
 <script type="text/javascript">
   var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
 </script>
 
 <script src="./js/jquery.js"></script>
-<script src="./js/navigation.js"></script>
-<script src="./js/search_index.js"></script>
-<script src="./js/search.js"></script>
-<script src="./js/searcher.js"></script>
 <script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
 
 
 <body id="top" role="document" class="module">
@@ -65,6 +63,8 @@
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-extensions">::extensions</a>
     
     <li ><a href="#method-c-render_doc">::render_doc</a>
     
@@ -118,11 +118,55 @@
        </header>
 
     
+      <div id="method-c-extensions" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">extensions</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="extensions-source">
+            <pre>VALUE rb_extensions(VALUE self) {
+  cmark_llist *exts, *it;
+  cmark_syntax_extension *ext;
+  VALUE ary = rb_ary_new();
+
+  cmark_mem *mem = cmark_get_default_mem_allocator();
+  exts = cmark_list_syntax_extensions(mem);
+  for (it = exts; it; it = it-&gt;next) {
+    ext = it-&gt;data;
+    rb_ary_push(ary, rb_str_new2(ext-&gt;name));
+  }
+  cmark_llist_free(mem, exts);
+
+  return ary;
+}</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-c-render_doc" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">render_doc</span><span
-            class="method-args">(text, options = :default)</span>
+            class="method-args">(text, options = :DEFAULT, extensions = [])</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -134,7 +178,8 @@
           <p>Public: Parses a Markdown string into a `document` node.</p>
 
 <p>string - {String} to be parsed option - A {Symbol} or {Array of Symbol}s
-indicating the parse options</p>
+indicating the parse options extensions - An {Array of Symbol}s indicating
+the extensions to use</p>
 
 <p>Returns the `document` node.</p>
           
@@ -142,12 +187,12 @@ indicating the parse options</p>
 
           
           <div class="method-source-code" id="render_doc-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 34</span>
-<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">options</span> = <span class="ruby-value">:default</span>)
-  <span class="ruby-identifier">fail</span> <span class="ruby-constant">TypeError</span>, <span class="ruby-string">&#39;text must be a string!&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">text</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 36</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_doc</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>, <span class="ruby-identifier">extensions</span> = [])
+  <span class="ruby-identifier">fail</span> <span class="ruby-constant">TypeError</span>, <span class="ruby-node">&quot;text must be a String; got a #{text.class}!&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">text</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
   <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:parse</span>)
   <span class="ruby-identifier">text</span> = <span class="ruby-identifier">text</span>.<span class="ruby-identifier">encode</span>(<span class="ruby-string">&#39;UTF-8&#39;</span>)
-  <span class="ruby-constant">Node</span>.<span class="ruby-identifier">parse_document</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">text</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">opts</span>)
+  <span class="ruby-constant">Node</span>.<span class="ruby-identifier">parse_document</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">text</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">opts</span>, <span class="ruby-identifier">extensions</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -163,7 +208,7 @@ indicating the parse options</p>
         
         <div class="method-heading">
           <span class="method-name">render_html</span><span
-            class="method-args">(text, options = :default)</span>
+            class="method-args">(text, options = :DEFAULT, extensions = [])</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -175,7 +220,8 @@ indicating the parse options</p>
           <p>Public:  Parses a Markdown string into an HTML string.</p>
 
 <p>text - A {String} of text option - Either a {Symbol} or {Array of Symbol}s
-indicating the render options</p>
+indicating the render options extensions - An {Array of Symbol}s indicating
+the extensions to use</p>
 
 <p>Returns a {String} of converted HTML.</p>
           
@@ -183,12 +229,12 @@ indicating the render options</p>
 
           
           <div class="method-source-code" id="render_html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 20</span>
-<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">options</span> = <span class="ruby-value">:default</span>)
-  <span class="ruby-identifier">fail</span> <span class="ruby-constant">TypeError</span>, <span class="ruby-string">&#39;text must be a string!&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">text</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker.rb, line 21</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">render_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>, <span class="ruby-identifier">extensions</span> = [])
+  <span class="ruby-identifier">fail</span> <span class="ruby-constant">TypeError</span>, <span class="ruby-node">&quot;text must be a String; got a #{text.class}!&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">text</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
   <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
   <span class="ruby-identifier">text</span> = <span class="ruby-identifier">text</span>.<span class="ruby-identifier">encode</span>(<span class="ruby-string">&#39;UTF-8&#39;</span>)
-  <span class="ruby-identifier">html</span> = <span class="ruby-constant">Node</span>.<span class="ruby-identifier">markdown_to_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">opts</span>)
+  <span class="ruby-identifier">html</span> = <span class="ruby-constant">Node</span>.<span class="ruby-identifier">markdown_to_html</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">opts</span>, <span class="ruby-identifier">extensions</span>)
   <span class="ruby-identifier">html</span>.<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;UTF-8&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -209,7 +255,7 @@ indicating the render options</p>
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="http://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="http://rdoc.rubyforge.org">RDoc</a> 4.1.2.
-  <p>Based on <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+  <p>Generated by <a href="https://rdoc.github.io/rdoc">RDoc</a> 5.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 
