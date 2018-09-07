@@ -72,6 +72,10 @@
     <li><span class="include">Enumerable</span>
   
   
+  
+    <li><a class="include" href="Node/Inspect.html">CommonMarker::Node::Inspect</a>
+  
+  
   </ul>
 </div>
 
@@ -91,6 +95,8 @@
     <li ><a href="#method-i-_render_commonmark">#_render_commonmark</a>
     
     <li ><a href="#method-i-_render_html">#_render_html</a>
+    
+    <li ><a href="#method-i-_render_plaintext">#_render_plaintext</a>
     
     <li ><a href="#method-i-append_child">#append_child</a>
     
@@ -146,6 +152,8 @@
     
     <li ><a href="#method-i-string_content-3D">#string_content=</a>
     
+    <li ><a href="#method-i-table_alignments">#table_alignments</a>
+    
     <li ><a href="#method-i-title">#title</a>
     
     <li ><a href="#method-i-title-3D">#title=</a>
@@ -153,6 +161,8 @@
     <li ><a href="#method-i-to_commonmark">#to_commonmark</a>
     
     <li ><a href="#method-i-to_html">#to_html</a>
+    
+    <li ><a href="#method-i-to_plaintext">#to_plaintext</a>
     
     <li ><a href="#method-i-type">#type</a>
     
@@ -357,6 +367,10 @@ following:</p>
     node_type = CMARK_NODE_LINK;
   else if (type == sym_image)
     node_type = CMARK_NODE_IMAGE;
+  else if (type == sym_footnote_reference)
+    node_type = CMARK_NODE_FOOTNOTE_REFERENCE;
+  else if (type == sym_footnote_definition)
+    node_type = CMARK_NODE_FOOTNOTE_DEFINITION;
   else
     rb_raise(rb_mNodeError, &quot;invalid node of type %d&quot;, node_type);
 
@@ -443,7 +457,7 @@ following:</p>
         
         <div class="method-heading">
           <span class="method-name">_render_commonmark</span><span
-            class="method-args">(p1)</span>
+            class="method-args">(p1, p2 = v2)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -460,15 +474,24 @@ following:</p>
 
           
           <div class="method-source-code" id="_render_commonmark-source">
-            <pre>static VALUE rb_render_commonmark(VALUE n, VALUE rb_options) {
+            <pre>static VALUE rb_render_commonmark(int argc, VALUE *argv, VALUE self) {
+  VALUE rb_options, rb_width;
+  rb_scan_args(argc, argv, &quot;11&quot;, &amp;rb_options, &amp;rb_width);
+
+  int width = 120;
+  if (!NIL_P(rb_width)) {
+    Check_Type(rb_width, T_FIXNUM);
+    width = FIX2INT(rb_width);
+  }
+
   int options;
   cmark_node *node;
   Check_Type(rb_options, T_FIXNUM);
 
   options = FIX2INT(rb_options);
-  Data_Get_Struct(n, cmark_node, node);
+  Data_Get_Struct(self, cmark_node, node);
 
-  char *cmark = cmark_render_commonmark(node, options, 120);
+  char *cmark = cmark_render_commonmark(node, options, width);
   VALUE ruby_cmark = rb_str_new2(cmark);
   free(cmark);
 
@@ -505,7 +528,7 @@ following:</p>
 
           
           <div class="method-source-code" id="_render_html-source">
-            <pre>static VALUE rb_render_html(VALUE n, VALUE rb_options, VALUE rb_extensions) {
+            <pre>static VALUE rb_render_html(VALUE self, VALUE rb_options, VALUE rb_extensions) {
   int options, extensions_len;
   VALUE rb_ext_name;
   int i;
@@ -518,7 +541,7 @@ following:</p>
   options = FIX2INT(rb_options);
   extensions_len = RARRAY_LEN(rb_extensions);
 
-  Data_Get_Struct(n, cmark_node, node);
+  Data_Get_Struct(self, cmark_node, node);
 
   for (i = 0; i &lt; extensions_len; ++i) {
     rb_ext_name = RARRAY_PTR(rb_extensions)[i];
@@ -546,6 +569,60 @@ following:</p>
   free(html);
 
   return ruby_html;
+}</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-_render_plaintext" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">_render_plaintext</span><span
+            class="method-args">(p1, p2 = v2)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Internal: Convert the node to a plain textstring.</p>
+
+<p>Returns a {String}.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="_render_plaintext-source">
+            <pre>static VALUE rb_render_plaintext(int argc, VALUE *argv, VALUE self) {
+  VALUE rb_options, rb_width;
+  rb_scan_args(argc, argv, &quot;11&quot;, &amp;rb_options, &amp;rb_width);
+
+  int width = 120;
+  if (!NIL_P(rb_width)) {
+    Check_Type(rb_width, T_FIXNUM);
+    width = FIX2INT(rb_width);
+  }
+
+  int options;
+  cmark_node *node;
+  Check_Type(rb_options, T_FIXNUM);
+
+  options = FIX2INT(rb_options);
+  Data_Get_Struct(self, cmark_node, node);
+
+  char *text = cmark_render_plaintext(node, options, width);
+  VALUE ruby_text = rb_str_new2(text);
+  free(text);
+
+  return ruby_text;
 }</pre>
           </div>
           
@@ -664,7 +741,7 @@ siblings appropriately).</p>
 
           
           <div class="method-source-code" id="each-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 39</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 54</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-keyword">return</span> <span class="ruby-identifier">enum_for</span>(<span class="ruby-value">:each</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">block_given?</span>
 
@@ -704,7 +781,7 @@ siblings appropriately).</p>
 
           
           <div class="method-source-code" id="each_child-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 51</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 66</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">each_child</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">warn</span> <span class="ruby-string">&#39;[DEPRECATION] `each_child` is deprecated.  Please use `each` instead.&#39;</span>
   <span class="ruby-identifier">each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -1774,6 +1851,62 @@ can&#39;t be set.</p>
       </div>
 
     
+      <div id="method-i-table_alignments" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">table_alignments</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="table_alignments-source">
+            <pre>static VALUE rb_node_get_table_alignments(VALUE self) {
+  uint16_t column_count, i;
+  uint8_t *alignments;
+  cmark_node *node;
+  VALUE ary;
+  Data_Get_Struct(self, cmark_node, node);
+
+  column_count = cmark_gfm_extensions_get_table_columns(node);
+  alignments = cmark_gfm_extensions_get_table_alignments(node);
+
+  if (!column_count || !alignments) {
+    rb_raise(rb_mNodeError, &quot;could not get column_count or alignments&quot;);
+  }
+
+  ary = rb_ary_new();
+  for (i = 0; i &lt; column_count; ++i) {
+    if (alignments[i] == &#39;l&#39;)
+      rb_ary_push(ary, sym_left);
+    else if (alignments[i] == &#39;c&#39;)
+      rb_ary_push(ary, sym_center);
+    else if (alignments[i] == &#39;r&#39;)
+      rb_ary_push(ary, sym_right);
+    else
+      rb_ary_push(ary, Qnil);
+  }
+  return ary;
+}</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-title" class="method-detail ">
         
         <div class="method-heading">
@@ -1870,7 +2003,7 @@ set.</p>
         
         <div class="method-heading">
           <span class="method-name">to_commonmark</span><span
-            class="method-args">(options = :DEFAULT)</span>
+            class="method-args">(options = :DEFAULT, width = 120)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -1881,7 +2014,8 @@ set.</p>
           
           <p>Public: Convert the node to a CommonMark string.</p>
 
-<p>options - A {Symbol} or {Array of Symbol}s indicating the render options</p>
+<p>options - A {Symbol} or {Array of Symbol}s indicating the render options
+width - Column to wrap the output at</p>
 
 <p>Returns a {String}.</p>
           
@@ -1889,10 +2023,10 @@ set.</p>
 
           
           <div class="method-source-code" id="to_commonmark-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 33</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_commonmark</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>)
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 37</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_commonmark</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>, <span class="ruby-identifier">width</span> = <span class="ruby-value">120</span>)
   <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
-  <span class="ruby-identifier">_render_commonmark</span>(<span class="ruby-identifier">opts</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
+  <span class="ruby-identifier">_render_commonmark</span>(<span class="ruby-identifier">opts</span>, <span class="ruby-identifier">width</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1928,10 +2062,49 @@ extensions - An {Array of Symbol}s indicating the extensions to use</p>
 
           
           <div class="method-source-code" id="to_html-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 23</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 26</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">to_html</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>, <span class="ruby-identifier">extensions</span> = [])
   <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
   <span class="ruby-identifier">_render_html</span>(<span class="ruby-identifier">opts</span>, <span class="ruby-identifier">extensions</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_plaintext" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_plaintext</span><span
+            class="method-args">(options = :DEFAULT, width = 120)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Public: Convert the node to a plain text string.</p>
+
+<p>options - A {Symbol} or {Array of Symbol}s indicating the render options
+width - Column to wrap the output at</p>
+
+<p>Returns a {String}.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_plaintext-source">
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 48</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_plaintext</span>(<span class="ruby-identifier">options</span> = <span class="ruby-value">:DEFAULT</span>, <span class="ruby-identifier">width</span> = <span class="ruby-value">120</span>)
+  <span class="ruby-identifier">opts</span> = <span class="ruby-constant">Config</span>.<span class="ruby-identifier">process_options</span>(<span class="ruby-identifier">options</span>, <span class="ruby-value">:render</span>)
+  <span class="ruby-identifier">_render_plaintext</span>(<span class="ruby-identifier">opts</span>, <span class="ruby-identifier">width</span>).<span class="ruby-identifier">force_encoding</span>(<span class="ruby-string">&#39;utf-8&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2029,6 +2202,12 @@ extensions - An {Array of Symbol}s indicating the extensions to use</p>
     break;
   case CMARK_NODE_IMAGE:
     symbol = sym_image;
+    break;
+  case CMARK_NODE_FOOTNOTE_REFERENCE:
+    symbol = sym_footnote_reference;
+    break;
+  case CMARK_NODE_FOOTNOTE_DEFINITION:
+    symbol = sym_footnote_definition;
     break;
   default:
     if (node-&gt;extension) {
@@ -2201,7 +2380,7 @@ recursively.</p>
 
           
           <div class="method-source-code" id="walk-source">
-            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 8</span>
+            <pre><span class="ruby-comment"># File lib/commonmarker/node.rb, line 11</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">walk</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-keyword">return</span> <span class="ruby-identifier">enum_for</span>(<span class="ruby-value">:walk</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">block_given?</span>
 

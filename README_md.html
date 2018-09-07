@@ -67,7 +67,8 @@
     <li><a href="#label-Parse+options">Parse options</a>
     <li><a href="#label-Render+options">Render options</a>
     <li><a href="#label-Passing+options">Passing options</a>
-    <li><a href="#label-Hacking">Hacking</a>
+    <li><a href="#label-Extensions">Extensions</a>
+    <li><a href="#label-Developing+locally">Developing locally</a>
     <li><a href="#label-Benchmarks">Benchmarks</a>
   </ul>
 </div>
@@ -96,9 +97,16 @@ src="https://travis-ci.org/gjtorikian/commonmarker.svg"></a> <a
 href="http://badge.fury.io/rb/commonmarker"><img
 src="https://badge.fury.io/rb/commonmarker.svg"></a></p>
 
-<p>Ruby wrapper for <a href="https://github.com/jgm/CommonMark">libcmark</a>,
-the reference parser for CommonMark. It passes all of the C tests, and is
-therefore spec-complete.</p>
+<p>Ruby wrapper for <a
+href="https://github.com/github/cmark">libcmark-gfm</a>, GitHub&#39;s fork
+of the reference parser for CommonMark. It passes all of the C tests, and
+is therefore spec-complete. It also includes extensions to the CommonMark
+spec as documented in the <a href="http://github.github.com/gfm/">GitHub
+Flavored Markdown spec</a>, such as support for tables, strikethroughs, and
+autolinking.</p>
+
+<p>For more information on available extensions, see <a href="#extensions">the
+documentation below</a>.</p>
 
 <h2 id="label-Installation">Installation<span><a href="#label-Installation">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
@@ -132,7 +140,7 @@ information.</p>
 <h3 id="label-Generating+a+document">Generating a document<span><a href="#label-Generating+a+document">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p>You can also parse a string to receive a <code>Document</code> node. You
-can than print that node to HTML, iterate over the children, and other fun
+can then print that node to HTML, iterate over the children, and other fun
 node stuff. For example:</p>
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;commonmarker&#39;</span>
@@ -231,19 +239,29 @@ below.</p>
 
 <h3 id="label-Parse+options">Parse options<span><a href="#label-Parse+options">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
-<p>| Name | Description | |——-|————–| | <code>:DEFAULT</code> | The default
-parsing system.<br> | <code>:NORMALIZE</code> | Attempt to normalize the
-HTML. | <code>:SMART</code> | Use smart punctuation (curly quotes, etc.). |
+<p>| Name | Description | —————————– | ———– | <code>:DEFAULT</code> | The
+default parsing system. | <code>:FOOTNOTES</code> | Parse footnotes. |
+<code>:LIBERAL_HTML_TAG</code> | Support liberal parsing of inline HTML
+tags. | <code>:SMART</code> | Use smart punctuation (curly quotes, etc.). |
+<code>:STRIKETHROUGH_DOUBLE_TILDE</code> | Parse strikethroughs by double
+tildes (compatibility with <a
+href="https://github.com/vmg/redcarpet">redcarpet</a>) |
 <code>:VALIDATE_UTF8</code> | Replace illegal sequences with the
 replacement character <code>U+FFFD</code>.</p>
 
 <h3 id="label-Render+options">Render options<span><a href="#label-Render+options">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
-<p>| Name | Description | |——-|————–| | <code>:DEFAULT</code> | The default
-rendering system. | <code>:SOURCEPOS</code> | Include source position in
-rendered HTML. | <code>:HARDBREAKS</code> | Treat <code>\n</code> as
-hardbreaks (by adding <code>&lt;br/&gt;</code>). | <code>:SAFE</code> |
-Suppress raw HTML and unsafe links.</p>
+<p>| Name | Description | | —————— | ———– | | <code>:DEFAULT</code> | The
+default rendering system. | | <code>:GITHUB_PRE_LANG</code> | Use
+GitHub-style <code>&lt;pre lang&gt;</code> for fenced code blocks. | |
+<code>:HARDBREAKS</code> | Treat <code>\n</code> as hardbreaks (by adding
+<code>&lt;br/&gt;</code>). | | <code>:NOBREAKS</code> | Translate
+<code>\n</code> in the source to a single whitespace. | |
+<code>:SAFE</code> | Suppress raw HTML and unsafe links. | |
+<code>:SOURCEPOS</code> | Include source position in rendered HTML. | |
+<code>:TABLE_PREFER_STYLE_ATTRIBUTES</code> | Use <code>style</code> insted
+of <code>align</code> for table cells | | <code>:FULL_INFO_STRING</code> |
+Include full info strings of code blocks in separate attribute |</p>
 
 <h3 id="label-Passing+options">Passing options<span><a href="#label-Passing+options">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
@@ -259,9 +277,33 @@ Suppress raw HTML and unsafe links.</p>
 </pre>
 
 <p>For more information on these options, see <a
-href="http://git.io/vlQii">the CMark documentation</a>.</p>
+href="https://git.io/v7nh1">the CMark documentation</a>.</p>
 
-<h2 id="label-Hacking">Hacking<span><a href="#label-Hacking">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<h2 id="label-Extensions">Extensions<span><a href="#label-Extensions">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p>Both <code>render_html</code> and <code>render_doc</code> take an optional
+third argument defining the extensions you want enabled as your CommonMark
+document is being processed. The documentation for these extensions are <a
+href="https://github.github.com/gfm/">defined in this spec</a>, and the
+rationale is provided <a
+href="https://githubengineering.com/a-formal-spec-for-github-markdown/">in
+this blog post</a>.</p>
+
+<p>The available extensions are:</p>
+<ul><li>
+<p><code>:table</code> - This provides support for tables.</p>
+</li><li>
+<p><code>:strikethrough</code> - This provides support for strikethroughs.</p>
+</li><li>
+<p><code>:autolink</code> - This provides support for automatically converting
+URLs to anchor tags.</p>
+</li><li>
+<p><code>:tagfilter</code> - This strips out <a
+href="https://github.github.com/gfm/#disallowed-raw-html-extension-">several
+“unsafe” HTML tags</a> from being used.</p>
+</li></ul>
+
+<h2 id="label-Developing+locally">Developing locally<span><a href="#label-Developing+locally">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
 <p>After cloning the repo:</p>
 

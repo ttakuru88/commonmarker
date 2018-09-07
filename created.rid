@@ -1,9 +1,10 @@
-Mon, 20 Mar 2017 10:27:36 -0700
-README.md	Mon, 20 Mar 2017 10:26:34 -0700
-lib/commonmarker.rb	Mon, 20 Mar 2017 10:26:34 -0700
-lib/commonmarker/config.rb	Mon, 20 Mar 2017 10:26:34 -0700
-lib/commonmarker/node.rb	Mon, 20 Mar 2017 10:26:34 -0700
-lib/commonmarker/renderer.rb	Mon, 20 Mar 2017 10:26:34 -0700
-lib/commonmarker/renderer/html_renderer.rb	Mon, 20 Mar 2017 10:26:34 -0700
-lib/commonmarker/version.rb	Mon, 20 Mar 2017 10:26:34 -0700
-ext/commonmarker/commonmarker.c	Mon, 20 Mar 2017 10:26:34 -0700
+Fri, 07 Sep 2018 14:36:06 -0400
+README.md	Thu, 16 Aug 2018 18:23:04 -0400
+lib/commonmarker.rb	Mon, 20 Mar 2017 13:27:41 -0400
+lib/commonmarker/config.rb	Thu, 16 Aug 2018 18:23:04 -0400
+lib/commonmarker/node.rb	Tue, 19 Jun 2018 17:06:23 -0400
+lib/commonmarker/node/inspect.rb	Fri, 21 Apr 2017 20:22:26 -0400
+lib/commonmarker/renderer.rb	Thu, 12 Oct 2017 15:43:19 -0400
+lib/commonmarker/renderer/html_renderer.rb	Fri, 07 Sep 2018 12:04:25 -0400
+lib/commonmarker/version.rb	Fri, 07 Sep 2018 12:15:08 -0400
+ext/commonmarker/commonmarker.c	Fri, 07 Sep 2018 12:04:25 -0400
