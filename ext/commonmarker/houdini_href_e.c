@@ -80,11 +80,9 @@ int houdini_escape_href(cmark_strbuf *ob, const uint8_t *src, bufsize_t size) {
  * sign. we're going with the generic escape
  * for now. the plus thing is more commonly seen
  * when building GET strings */
-#if 0
 		case ' ':
 			cmark_strbuf_putc(ob, '+');
 			break;
-#endif
 
     /* every other character goes with a %XX escaping */
     default:
